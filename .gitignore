@@ -1,0 +1,22 @@
+# 대용량 시뮬레이션 산출물 (repo 외부 /data/ 경로에 보관)
+*.mot
+*.sto
+*.osim
+*.mp4
+*.pkl
+*.npy
+
+# 결과 이미지 — 기본 제외, docs/images/ 및 docs/figures/ 하위만 예외 허용
+*.png
+!opensim_analysis/*/docs/images/*.png
+!opensim_analysis/*/docs/figures/*.png
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# 환경
+.env
+*.log
