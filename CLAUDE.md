@@ -2,8 +2,14 @@
 
 ## Project Context
 
-SMA fabric muscle 기반 wearable suit가 stoop lift 중 척추기립근(erector spinae) 부하에 미치는 영향을 정량화.
+SMA fabric muscle 기반 wearable suit가 들기 작업 중 척추기립근(erector spinae) 부하에 미치는 영향을 정량화.
 주 모델: ThoracolumbarFB v2.0 (OpenSim 4.x, 620 근육 전신).
+
+### 동작 용어 (terminology)
+
+- **stoop lift** — 제자리 허리 굽힘 (무릎 거의 고정, 허리만 굽힘). v5 모션(`stoop_synthetic_v5.mot`)이 여기에 해당.
+- **semi-squat lift** 또는 **stoop-squat hybrid** — 박스 들기처럼 무릎·고관절·허리가 함께 굽는 실제 들기 자세. `stoop_box20kg_v2.mot` (박스 v2)가 여기에 해당.
+- `§1.6`의 "stoop lift 28–29 % 감소" 수치는 v5 제자리 stoop에만 적용; 박스 v2 수치는 별도 리포트.
 
 ## Directory Conventions
 
@@ -53,9 +59,30 @@ Generated with Claude Code
 5. **read-only 지시 시 상태 변경 명령 금지** — 예: `gh auth setup-git` 등은 쓰기 동작이므로 진단 중 실행 금지
 6. **데이터 정합성 확인** — SO 결과 시간 범위가 렌더 대상 모션과 일치하는지 매번 확인 (과거 사례: suit_sweep_v2 3 s vs v5 motion 5 s 불일치)
 
+## Image Verification Protocol (3-tier)
+
+모든 스냅샷 · 프리뷰 · 논문용 figure 생성 시 **아래 3가지를 반드시 병행 제공**:
+
+1. **로컬 저장 경로** — 사용자 파일 매니저 / 뷰어 확인용 (`/data/opensim_results/...`)
+2. **GitHub raw URL** — Claude 채팅 `web_fetch` 확인용
+   - 반드시 **push 완료된 상태**의 URL만 제공 (로컬에만 있으면 채팅이 접근 불가)
+   - 형식: `https://raw.githubusercontent.com/parkch-meca/wearable-assist/main/<path>`
+3. **Claude Code 자가 Vision 검증 체크리스트** — 1차 판단
+   - 방법: 방금 생성한 PNG를 `Read` 툴로 열어 체크리스트 항목별 판정
+   - 판정: `✅ OK` / `⚠️ 의심` / `❌ 문제` + 근거 한 줄씩
+
+### 적용 규칙
+
+- 자가 검증 `❌ 문제` → **다음 단계 진행 중단**, 원인 분석 후 사용자 에스컬레이션
+- 자가 검증 `✅` 또는 `⚠️` → 사용자 + Claude 채팅 **2중 육안 검증** 필수
+- 자가 검증이 ✅여도 중요 결정(SO 실행 / 본 MP4 렌더 / 논문 figure 확정)은 반드시 2중 육안 검증 통과 후에만 진행
+- 자가 검증은 **조기 오류 탐지** 용도이며 사용자 승인을 대체하지 않음
+
 ## Current Focus (updated regularly)
 
-- [진행중] 박스 모션 B안 재생성 (hip / knee flexion 증가 → 손이 바닥 닿도록)
+- [완료] 박스 모션 v2 재생성 (semi-squat lift, hip+6° knee−10° ankle+4° pelvis_ty−0.10 m; 손이 박스 윗면 y ≈ −0.61 m 접촉)
+- [진행중] 박스 SO v2 4조건 재실행 + 프리뷰 v4
+- [대기] 박스 비교 MP4 v2 본 렌더 (2중 육안 검증 후)
 - [대기] OpenSim Moco 분석 (eccentric / concentric 비대칭 패턴 반영)
 - [대기] 성별 · 연령 그룹 확장
 
