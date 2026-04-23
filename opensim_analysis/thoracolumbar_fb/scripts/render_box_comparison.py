@@ -20,14 +20,14 @@ from PIL import Image, ImageDraw
 
 MODEL = '/data/opensim_models/ThoracolumbarFB/Fullbody_TLModels_v2.0_OS4x/MaleFullBodyModel_v2.0_OS4_modified.osim'
 GEOM_DIR = Path('/data/opensim_models/ThoracolumbarFB/Fullbody_TLModels_v2.0_OS4x/Geometry')
-MOT = '/data/stoop_motion/stoop_box20kg.mot'
-SO_LEFT  = '/data/stoop_results/box_lift/B_suit0/so_B_suit0_StaticOptimization_activation.sto'
-SO_RIGHT = '/data/stoop_results/box_lift/B_suit200/so_B_suit200_StaticOptimization_activation.sto'
+MOT = '/data/stoop_motion/stoop_box20kg_v2.mot'
+SO_LEFT  = '/data/stoop_results/box_lift_v2/B_suit0/so_B_suit0_StaticOptimization_activation.sto'
+SO_RIGHT = '/data/stoop_results/box_lift_v2/B_suit200/so_B_suit200_StaticOptimization_activation.sto'
 
 VIDEO_DIR = Path('/data/opensim_results/video'); VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 FRAME_DIR = Path('/tmp/stoop_box_frames'); FRAME_DIR.mkdir(parents=True, exist_ok=True)
-OUT_MP4 = VIDEO_DIR / 'stoop_box_comparison.mp4'
-OUT_PREVIEW = Path('/data/opensim_results/box_lift_preview_v3.png')
+OUT_MP4 = VIDEO_DIR / 'stoop_box_comparison_v2.mp4'
+OUT_PREVIEW = Path('/data/opensim_results/box_lift_preview_v4.png')
 
 FPS = 30
 T_TOTAL = 3.0
@@ -48,15 +48,15 @@ def alpha_spine(t):
     return 0.0
 
 # Box geometry
-BOX_SIZE = (0.20, 0.15, 0.20)   # x, y, z (m) — smaller to avoid torso overlap
+BOX_SIZE = (0.20, 0.15, 0.20)   # x, y, z (m) — width, height, depth
 # Forward offset added to hand-center position after grasp (avoids torso clipping)
 BOX_HAND_X_OFFSET = 0.08
-# Floor pose (before grasp): aligned in x,z to the grasp-time hand position
-# (measured once at t=2.0 s from stoop_box20kg.mot on the modified model).
-# Floor y (−0.775) is kept — motion does not bring hand down to floor, so a
-# ~0.27 m vertical pop remains at grasp (kinematic limitation of the mot).
+# Floor pose (before grasp): aligned to grasp-time hand position in x,z.
+# v2 uses stoop_box20kg_v2.mot (semi-squat lift): hand_center y = −0.606 m at t=2.0.
+# Box bottom at virtual floor y=−0.775 (user reference), so box center y=−0.70
+# and box top y=−0.625 aligns within 2 cm of the hand at grasp (natural contact).
 BOX_FLOOR_X = 0.706   # hand_center.x(t=2.0) + BOX_HAND_X_OFFSET
-BOX_FLOOR_Y = -0.85 + BOX_SIZE[1] / 2.0  # sits on floor y=-0.905
+BOX_FLOOR_Y = -0.70   # box center (bottom −0.775, top −0.625)
 BOX_FLOOR_Z = -0.032  # hand_center.z(t=2.0)
 
 
@@ -134,11 +134,14 @@ def hand_center_ground(model, state):
 
 
 def box_center(model, state, t):
-    """Return (x,y,z) for box center and whether it's 'grasped' (affects label)."""
+    """Box center position; post-grasp = hand rests on top (box top at hand_y)."""
     if t < BOX_START_T - 1e-6:
         return np.array([BOX_FLOOR_X, BOX_FLOOR_Y, BOX_FLOOR_Z]), False
     hc = hand_center_ground(model, state)
-    return np.array([hc[0] + BOX_HAND_X_OFFSET, hc[1], hc[2]]), True
+    # Hand on top of box → box center BELOW hand by half the box height
+    return np.array([hc[0] + BOX_HAND_X_OFFSET,
+                     hc[1] - BOX_SIZE[1] / 2.0,
+                     hc[2]]), True
 
 
 def build_bone_actor(plotter, model, state, meshes, color='ivory'):
@@ -268,8 +271,8 @@ def composite_frame(img_3d_path, out_path, t, es_l_pct, es_r_pct, torque_now_nm,
     fig.patch.set_facecolor('#f0f0f0')
 
     phase, pcolor = phase_label(t)
-    ax.text(0.02, 0.80, 'Box Lift 20 kg  —  Baseline vs SMA Suit (200 N · 24 N·m peak)',
-            fontsize=20, fontweight='bold', color='black', transform=ax.transAxes)
+    ax.text(0.02, 0.80, 'Box Lift 20 kg (semi-squat)  —  Baseline vs SMA Suit (200 N · 24 N·m peak)',
+            fontsize=19, fontweight='bold', color='black', transform=ax.transAxes)
     ax.text(0.02, 0.58, f'Phase: {phase}   •   box grasped at t = 2.0 s',
             fontsize=13, color=pcolor, transform=ax.transAxes, fontweight='bold')
 
