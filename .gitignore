@@ -6,8 +6,11 @@
 *.pkl
 *.npy
 
-# 결과 이미지 — 기본 제외, docs/images/ 및 docs/figures/ 하위만 예외 허용
+# 결과 이미지 — 기본 제외, docs/images/ 및 docs/figures/ 재귀 하위 예외 허용
 *.png
+!opensim_analysis/*/docs/images/**/*.png
+!opensim_analysis/*/docs/figures/**/*.png
+# Top-level docs/images/*.png (sub-dirless) 도 허용
 !opensim_analysis/*/docs/images/*.png
 !opensim_analysis/*/docs/figures/*.png
 
