@@ -1,160 +1,268 @@
-# CONTINUATION GUIDE
+# CONTINUATION GUIDE — Moco 전환 단계
 
-_Last updated: 2026-04-22_
-
-새 채팅 세션에서 작업을 이어가려면 이 문서를 먼저 읽어 주세요.
+_Last updated: 2026-04-23 (end of session)_  
+_Next session: 2026-04-24_  
+_Project: wearable-assist / opensim_analysis / thoracolumbar_fb_
 
 ---
 
-## 1. 프로젝트 현재 상태
+## 0. 이 문서의 용도
 
-### 1.1 환경
+내일(2026-04-24) 새 Claude 채팅 세션을 시작할 때, 이 문서를 **맨 처음에 업로드**해서 전체 맥락을 복원.
 
-- **OpenSim GUI 4.6** — Ubuntu 24.04에 설치 완료
-  - 실행: `~/opensim-build/opensim_gui_install/bin/opensim`
-  - 브라우저 뷰어: `http://127.0.0.1:8002/index.html?css=gui&modern=true`
-- **Python OpenSim SDK** — conda 환경 `opensim`
-  - Python: `/home/sysop/miniconda3/envs/opensim/bin/python`
+이 문서 + userMemories (13-18번 신규) + /data/wearable-assist/opensim_analysis/thoracolumbar_fb/ 의 최신 커밋(b9b8aec 이후)이 모든 맥락입니다.
 
-### 1.2 모델
+---
 
-- **ThoracolumbarFB v2.0 (OS 4.x, 620 근육 전신)** — 정상 작동 확인
-  - 수정 모델: `/data/opensim_models/ThoracolumbarFB/Fullbody_TLModels_v2.0_OS4x/MaleFullBodyModel_v2.0_OS4_modified.osim`
-  - 지오메트리: `/data/opensim_models/ThoracolumbarFB/Fullbody_TLModels_v2.0_OS4x/Geometry/`
-  - 예비 액추에이터 포함 모델 (박스용): `/data/stoop_results/box_lift/model_with_reserves_box.osim`
-  - 예비 액추에이터 포함 모델 (v5): `/data/stoop_results/stoop_v5/model_with_reserves_v5.osim`
+## 1. 어제(2026-04-23) 세션 요약
 
-### 1.3 동작 데이터
+### 1.1 원래 목표
+- 20kg 박스 들기 비교 영상 완성 (stoop_box_comparison.mp4)
 
-| 유형 | 파일 | 길이 | GRF |
-|---|---|---|---|
-| 제자리 stoop (느린 대칭, 발 고정) | `/data/stoop_motion/stoop_synthetic_v5.mot` | 5 s @ 120fps | ✅ `stoop_grf_v5.sto` / `stoop_grf_v5.xml` |
-| 20 kg 박스 들기 | `/data/stoop_motion/stoop_box20kg.mot` | 3 s @ 120fps | (ExternalLoads로 직접 처리) |
+### 1.2 실제 진행 경과
 
-### 1.4 Static Optimization 결과
+**박스 영상 trouble-shooting → Reserve 민감도 발견 → Moco 전환 결정**의 연쇄:
 
-| 조건 | 위치 | 동작 | 비고 |
-|---|---|---|---|
-| 무부하 0 N (v5) | `/data/stoop_results/stoop_v5/so_v5_StaticOptimization_activation.sto` | 5 s | v5 베이스라인 |
-| 슈트 스윕 F{0,50,100,150,200} | `/data/stoop_results/suit_sweep_v2/F*/` | **3 s (구버전)** | 선형회귀용 |
-| 슈트 F200 (v5) | `/data/stoop_results/suit_sweep_v5/F200/suit_v5_F200_StaticOptimization_activation.sto` | 5 s | 비교 영상용 |
-| 박스 들기 0/100/200 N | `/data/stoop_results/box_lift/B_{noload,suit0,suit100,suit200}/` | 3 s | 박스 파지 t≥2.0s |
+1. v4 preview에서 "t=0 박스 13cm 부양" 발견
+2. 조사 중 "발 15cm 땅속 매몰" 추가 발견 (motion에 ground contact constraint 없음)
+3. **"20kg인데 ES 22%는 너무 낮다"** 사용자 지적으로 수치 검증 착수
+4. Reserve actuator 413Nm이 척추 근육 대신 일하고 있음 발견 (근본 원인)
+5. Reserve 민감도 스윕 실시 (R100→R50→R10→R5→R1)
+6. **결론: 절대값은 민감, 상대값(suit 효과)은 robust** → 논문 메시지 유지 가능
+7. 박스 영상은 임시본(v2)으로 마무리, Moco로 근본 해결 결정
 
-### 1.5 영상
+### 1.3 최종 산출물 (Commit b9b8aec)
 
-| 콘텐츠 | 파일 |
+GitHub: https://github.com/parkch-meca/wearable-assist/commit/b9b8aec
+
+| 파일 | 내용 |
 |---|---|
-| v5 단독 (OpenSim GUI 스타일) | `/data/opensim_results/video/stoop_v5_gui_quality_v2.mp4` |
-| v5 슈트 비교 (0 N vs 200 N) | `/data/opensim_results/video/stoop_suit_comparison_v2.mp4` |
-| 박스 들기 비교 (v1, 박스 표시 이슈 있음) | `/data/opensim_results/video/stoop_box_comparison.mp4` |
+| `docs/reserve_sensitivity.md` | R100/50/10/5/1 스윕 상세 |
+| `docs/suit_sweep_reserve_comparison.md` | §1.6 slope R100 vs R50 비교 |
+| `docs/moco_env_check.md` | Moco 환경 점검 체크리스트 |
+| `KNOWN_LIMITATIONS.md` | 박스 영상 3가지 제약 + Moco 해결 계획 |
+| `scripts/run_reserve_sweep*.py` | 재현 스크립트 |
+| `scripts/render_box_comparison.py` (M) | ES peak metric으로 display 변경 |
+| `docs/images/box_lift_preview_v6.png` | 최종 프리뷰 |
+| `/data/opensim_results/video/stoop_box_comparison_v2.mp4` | 임시본 영상 (1.27MB, 3.03s) |
 
-### 1.6 핵심 결과
+### 1.4 핵심 수치 (기억할 것)
 
-- **SMA 슈트 도즈 반응 (3 s 모션 기준, suit_sweep_v2)**: ES mean peak 활성도 선형 감소
-  - Δmean % vs 토크(N·m): **slope = 1.206 %/Nm**, intercept = 0.04 %, **R² = 1.0000**
-  - 24 N·m (F=200 N)에서 **28.97 % 감소**
-- **v5 5-s 모션 + 200 N 슈트**: ES mean peak 기준 약 **28–29 % 감소** (hold 구간 t=2.5–3.0s)
-- **20 kg 박스 + 200 N 슈트**: 파지 직후 t≈2.0s에서 **21 % 감소** (11.7 % → 9.3 %); 박스 리프트오프 피크 t≈2.33s에서 10 % 감소 (18.4 % → 16.5 %)
+```
+Reserve 민감도 (B_suit0 @ t=2.33s, 20kg 박스):
 
----
+Reserve 설정    ES peak    ES mean    Reserve 사용    SO 수렴
+R100 (현재)     66.7%      18.6%      413 Nm         ✅
+R50             86.8%      25.3%      209 Nm         ✅
+R10             100% sat   38.7%      22 Nm          ✅ (2 근육 saturation)
+R5              100% sat   41.6%      6.8 Nm         ✅ (4 근육 saturation)
+R1              100% sat   43.8%      0.4 Nm         ✅ (4 근육 saturation)
 
-## 2. 다음 단계
+Suit 상대 감소율 (B_suit0 → B_suit200, R100 vs R50):
+R100: Δ peak = −10.34%, Δ mean = −10.42%
+R50:  Δ peak = −10.60%, Δ mean = −10.95%
+차이: 0.27%p (robust)
 
-### 2.1 박스 들기 영상 수정 (진행 중)
-
-- [x] 박스 크기 20×15×20 cm로 축소
-- [x] 박스가 t=0부터 바닥(X=0.35, Y=-0.78)에 고정되어 보이도록 수정
-- [x] 파지 후(t≥2 s) 박스가 손 중심 +0.08 m 앞쪽을 추적해 직립 시 몸통 관통 방지
-- [x] 프리뷰 v2 생성: `/data/opensim_results/box_lift_preview_v2.png`
-- [ ] **본 MP4 재렌더 승인 대기**: `python /data/stoop_motion/render_box_comparison.py video`
-  - 스크립트: `/data/stoop_motion/render_box_comparison.py` (수정 완료)
-  - 예상 소요: ~4 분 (91 프레임)
-  - 출력: `/data/opensim_results/video/stoop_box_comparison.mp4` (덮어씀)
-
-### 2.2 OpenSim Moco 분석 (예정)
-
-- **목적**: eccentric(이완성)/concentric(단축성) 비대칭 패턴 반영
-- **Static Optimization 한계**: 시점별 스냅샷 최적화 → 근육 activation dynamics·길이·속도 관계 미반영
-- **예상 소요**: 하룻밤 (6–10 시간) 실행 필요
-- **산출물**: 각 조건별 근육 activation 동역학 시계열 + 시간적분 비용 지표
-
-### 2.3 성별·연령 그룹 확장 (예정)
-
-- 현재는 MaleFullBody (성인 남성 1조건)만 수행
-- 확장 시 모델 스케일링 + 인체 매개변수 세트 준비 필요
-
----
-
-## 3. 주요 파일 경로
-
-| 항목 | 경로 |
-|---|---|
-| 수정 모델 | `/data/opensim_models/ThoracolumbarFB/Fullbody_TLModels_v2.0_OS4x/MaleFullBodyModel_v2.0_OS4_modified.osim` |
-| stoop v5 동작 | `/data/stoop_motion/stoop_synthetic_v5.mot` |
-| 박스 동작 | `/data/stoop_motion/stoop_box20kg.mot` |
-| SO 결과 (무부하 v5) | `/data/stoop_results/stoop_v5/` |
-| SO 결과 (슈트 v2 스윕, 3 s) | `/data/stoop_results/suit_sweep_v2/` |
-| SO 결과 (슈트 v5 F200, 5 s) | `/data/stoop_results/suit_sweep_v5/F200/` |
-| SO 결과 (박스) | `/data/stoop_results/box_lift/` |
-| 영상 폴더 | `/data/opensim_results/video/` |
-| 분석 플롯 | `/data/opensim_results/suit_effect_plot.png` |
-
-### 주요 Python 스크립트 (`/data/stoop_motion/`)
-
-| 스크립트 | 용도 |
-|---|---|
-| `gen_stoop_v5.py` | 제자리 stoop v5 동작 생성 (GRF 포함) |
-| `gen_stoop_box_motion.py` | 20 kg 박스 들기 동작 생성 |
-| `run_stoop_v5_so.py` | v5 베이스라인 ID + SO |
-| `run_suit_so_v2.py` | 슈트 스윕 SO (3 s 모션, F0–F200) |
-| `run_suit_so_v5.py` | 슈트 F200 SO (5 s v5 모션, GRF + 토크 커플 병합) |
-| `run_box_so.py` | 박스 들기 4조건 SO (B_noload / B_suit0 / B_suit100 / B_suit200) |
-| `render_v5_video.py` | v5 단독 렌더 |
-| `render_suit_comparison_v2.py` | 슈트 비교 렌더 (preview / video 모드) |
-| `render_box_comparison.py` | 박스 비교 렌더 (preview / video 모드) |
-| `plot_suit_sweep.py` | 슈트 도즈 반응 플롯 + 선형 회귀 |
-
----
-
-## 4. 실행 방법
-
-```bash
-# OpenSim GUI 실행
-~/opensim-build/opensim_gui_install/bin/opensim &
-# 브라우저에서 확인
-firefox 'http://127.0.0.1:8002/index.html?css=gui&modern=true'
-
-# Python 환경
-conda activate opensim
-# (또는 직접)  PY=/home/sysop/miniconda3/envs/opensim/bin/python
-
-# SO 재실행 (슈트 v5 F200만)
-$PY /data/stoop_motion/run_suit_so_v5.py 200
-
-# 영상 렌더 — 항상 preview 먼저
-DISPLAY=:1 $PY /data/stoop_motion/render_suit_comparison_v2.py preview
-DISPLAY=:1 $PY /data/stoop_motion/render_suit_comparison_v2.py video
-
-DISPLAY=:1 $PY /data/stoop_motion/render_box_comparison.py preview
-DISPLAY=:1 $PY /data/stoop_motion/render_box_comparison.py video
-
-# 슈트 도즈 반응 플롯
-$PY /data/stoop_motion/plot_suit_sweep.py
+Suit sweep slope (§1.6):
+R100 재측정:   1.120 %/Nm (기존 1.206 값과 가까움)
+R50:           0.889 %/Nm (약간 낮음)
+R² = 1.0000 양쪽 모두 유지
 ```
 
 ---
 
-## 5. 핵심 원칙 (반드시 준수)
+## 2. 내일 시작점
 
-1. **동작 스냅샷 육안 확인 필수** — 모든 SO/시뮬레이션 실행 전 `.mot` 파일을 OpenSim GUI에서 한 번 로드해 보고 오류가 없는지 확인.
-2. **승인 전 SO/영상 렌더 실행 금지** — 장시간 작업이므로 매 단계 프리뷰(스냅샷 PNG) 확인 후 사용자 승인을 받고 진행.
-3. **중요 결과는 반드시 영상으로 저장** — 숫자만 남기지 말고 `.mp4`로 남겨 리뷰 가능하게 둘 것.
-4. **데이터 정합성 확인** — SO 결과의 시간 범위가 렌더링할 모션과 일치하는지 항상 확인 (예: suit_sweep_v2는 3 s, v5 motion은 5 s).
+### 2.1 목표 (우선순위 순)
+
+**목표 1**: OpenSim Moco 파이프라인 확립
+- Step 1: `prepare_model_for_moco.py` 작성 (locked coord → WeldJoint)
+- Step 2: Moco smoke test (예제 1개 실행, 익숙해지기)
+- Step 3: MocoTrack으로 제자리 stoop v5 실행 (첫 Moco 시뮬레이션)
+- Step 4: 결과 검증 (기존 SO 결과와 비교)
+
+**목표 2**: 안정화 후 20kg 박스 들기 MocoTrack 실행
+- Ground contact constraint 반영
+- Box interaction constraint 반영
+- 기대: 박스-손-발 정합이 자동 해결됨
+
+**목표 3**: 논문 수치 업데이트
+- Moco 결과로 §1.6 재계산
+- Fig 7/8 재생성
+- Absolute baseline 값 업데이트 (ES peak 기준)
+
+### 2.2 결정된 설계 원칙 (변경 금지)
+
+1. **Moco 타입**: MocoTrack 먼저 + MocoInverse 병행 검증 (MocoStudy는 과욕)
+2. **초기 동작**: 제자리 stoop v5 → 20kg 박스 순차 (팔 들기/계단은 확장 단계)
+3. **Reserve**: 포함 with high penalty로 시작, 단계적 감소 (목표 <10%)
+4. **Locked coord**: 보수적 weld (stoop 무관 coord만)
+5. **지표**: ES peak 우선, ES mean 보조 (metric 정의 확정)
+
+### 2.3 환경 전제
+
+- Dell Precision 7960, Xeon w7-3465X (28코어), 128GB RAM
+- OpenSim 4.5.2 (conda env `opensim`, Python 3.11)
+- Moco 모듈 별도 설치 불필요 (확인됨)
+- CasADi 내장 OK
+- 작업 경로: `/data/wearable-assist/opensim_analysis/thoracolumbar_fb/`
 
 ---
 
-## 6. Git 상태
+## 3. Claude Code용 첫 프롬프트 (내일 시작 시)
 
-- `/data` 자체는 git repo가 아님
-- `/data/wearable-assist/` 에 기존 repo 존재 (remote: `github.com/meca92/wearable-assist.git`, 첫 커밋 전 상태)
-- 본 ThoracolumbarFB 작업물(stoop_motion/, stoop_results/, opensim_models/, opensim_results/)은 repo 외부에 위치
+```
+목표: Moco 전환 Step 1-2. 
+(Step 1) prepare_model_for_moco.py 작성 및 실행.
+(Step 2) Moco smoke test (간단 예제 1개).
+
+=== Step 1: Model preprocessing ===
+
+목적: ThoracolumbarFB의 locked coordinate를 WeldJoint로 변환.
+CasADiSolver는 locked coord를 처리 못하므로 필수.
+
+[1.1] Locked coord 전체 목록 추출
+   - MaleFullBodyModel_v2.0_OS4_modified.osim 로드
+   - locked=True인 모든 coord를 출력
+   - 각 coord가 속한 joint와 default value 기록
+   - 출력 파일: docs/locked_coords_inventory.md
+
+[1.2] Weld 대상 분류 (보수적 원칙)
+   - Stoop/lift 관련 coord는 유지:
+     * 모든 lumbar FE (L1-L5, T10-T12 flexion-extension)
+     * hip flexion, knee flexion, ankle dorsiflexion
+     * shoulder/elbow (박스 들기용)
+   - Weld 가능 후보:
+     * Vertebra axial rotation (비 sagittal plane)
+     * Vertebra lateral bending (비 sagittal plane)  
+     * Finger/toe joints
+     * 기타 stoop 무관 coord
+   - 각 결정에 근거 명시 (테이블로)
+   - 사용자 승인 대기
+
+[1.3] prepare_model_for_moco.py 작성
+   - 입력: MaleFullBodyModel_v2.0_OS4_modified.osim
+   - 작업: [1.2] 승인된 coord를 WeldJoint로 변환
+   - 출력: MaleFullBodyModel_v2.0_OS4_moco.osim (신규)
+   - 검증: 원본 default pose의 body positions와 변환 모델의 default 
+     pose body positions 비교 (오차 <1mm 기대)
+
+[1.4] 모델 검증
+   - 변환 모델을 opensim.Model()로 로드
+   - initSystem() 성공 확인
+   - opensim.MocoStudy() + problem.setModelAsCopy() 성공 확인
+   - 근육 수 = 620 (변화 없어야 함)
+   - Free coord 수 = 원본 free coord 수와 같아야 함
+
+=== Step 2: Moco smoke test ===
+
+목적: Moco solver가 실제로 수렴하는지 확인. 
+ThoracolumbarFB가 아닌 가벼운 예제로.
+
+[2.1] OpenSim 내장 예제 중 가벼운 것 선택
+   find / -path "*/Moco/example*" -name "*.py" 2>/dev/null | head -20
+   
+   후보 (빠른 것부터):
+   - exampleMocoInverse (가장 단순)
+   - exampleSitToStand
+   
+   실행하여 수렴 확인. 시간 기록.
+
+[2.2] 예제 실행 결과 정리
+   - 실행 시간
+   - solver iterations
+   - objective value 수렴 여부
+   - 산출 파일 (motion, controls)
+
+이 두 예제가 돌면 Moco 기본 환경 OK 확정.
+
+=== 보고 ===
+
+각 step 완료 후 보고:
+- 산출 파일 경로
+- 핵심 수치
+- 장애물/경고 사항
+- 다음 step 진행 가능 여부
+
+Git commit + push 각 step 완료 시:
+Step 1: "moco: Prepare ThoracolumbarFB model for Moco (weld locked coords)"
+Step 2: "moco: Smoke test examples passed, environment confirmed"
+
+=== 원칙 ===
+
+- Step 1.2 승인 대기 필수 (weld 범위 결정은 사용자가)
+- Step 1.4 검증에서 오차 있으면 중단, 원인 조사
+- Step 2에서 수렴 실패하면 Moco 설치/환경 문제 가능성, 즉시 보고
+- 대원칙: "시간 걸려도 제대로 된 모델" — 빠른 우회보다 정확성
+```
+
+---
+
+## 4. 다음 세션 Claude 채팅에게 전달할 맥락
+
+새 세션 시작 시 **첫 메시지**로 이 문서 업로드 + 다음 설명:
+
+> "어제 작업 이어가자. 이 가이드 문서 먼저 읽어줘. 
+> 목표는 OpenSim Moco 파이프라인 확립. 
+> 프롬프트는 §3에 준비됨. 
+> 검토하고 Claude Code에 전달할 최종 버전 만들어줘."
+
+## 5. 만약 내가 다른 것 먼저 하고 싶다면
+
+선택지:
+
+**A. Moco 집중** (권장) → §3 프롬프트 그대로 진행
+**B. 논문 초안 수정 먼저** → Moco 전에 R50 재계산으로 §1.6 업데이트 (1-2일)
+  - 단점: Moco 결과 나오면 또 수정 가능성
+**C. 박스 영상 재시도** → 비권장 (이미 확정된 임시본)
+**D. 다른 프로젝트** (KINESIS, GR00T 등) → Moco 보류
+
+A가 가장 일관적.
+
+---
+
+## 6. 장애물 및 리스크
+
+### 이미 파악된 것
+- Locked coordinate (~40-60개) → Step 1에서 해결
+- Motion이 박스 들기 최적화가 아님 → MocoTrack으로 근본 해결
+
+### 아직 모르는 것
+- Moco가 620 근육 모델 수렴할지 (시간 걸릴 가능성 — 예제는 단순 모델)
+- GRF/external load (박스) constraint 설정 방법
+- MocoTrack의 kinematic reference weight 튜닝
+
+### 마음의 준비
+- Moco 첫 실행은 하루 이상 걸릴 수 있음 (밤샘 실행)
+- 수렴 실패 시 문제 분해해야 함 (모델 복잡도 줄이기부터)
+- Step 1(1시간) + Step 2(30분) + 예제 익히기(반나절) + 제자리 stoop(1-2일) = 첫 주 목표
+
+---
+
+## 7. 참고 링크 및 파일
+
+### Git
+- Repo: https://github.com/parkch-meca/wearable-assist
+- 최신 commit: b9b8aec (2026-04-23 09:02 UTC)
+- 파일 시스템: `/data/wearable-assist/opensim_analysis/thoracolumbar_fb/`
+
+### 어제 생성된 핵심 문서
+- `docs/reserve_sensitivity.md` — reserve 민감도 분석
+- `docs/suit_sweep_reserve_comparison.md` — slope 재확인  
+- `docs/moco_env_check.md` — Moco 환경 점검
+- `KNOWN_LIMITATIONS.md` — 박스 영상 제약
+
+### 문헌 참고 (어제 사전 조사)
+- Frontiers 2026 (active exoskeleton, 15kg lift, ES 10-27% MVC): https://www.frontiersin.org/articles/10.3389/fbioe.2026.1631785
+- PLAD (Sadler et al., 2006, 5/15/25kg, ES EMG 감소 14.4-27.6%): https://pubmed.ncbi.nlm.nih.gov/16494978/
+- 이외 어제 web_search 결과 기록됨
+
+---
+
+## 8. Claude 채팅에게 개인적으로 (내일의 나에게)
+
+- 사용자는 "대원칙: 범용 확장 가능한 파이프라인"을 중시
+- "완벽"보다 "정직한 수치" 우선
+- 이미지 검증 프로토콜 엄수 (userMemories #18)
+- Claude Code에 task router 역할 강요 금지 (userMemories #2)
+- 사용자가 직접 코드 실행하지 않음 — 내가 Claude Code에게 프롬프트 만들어 전달하는 구조
