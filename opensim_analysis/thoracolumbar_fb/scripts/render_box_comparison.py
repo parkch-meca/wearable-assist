@@ -27,7 +27,7 @@ SO_RIGHT = '/data/stoop_results/box_lift_v2/B_suit200/so_B_suit200_StaticOptimiz
 VIDEO_DIR = Path('/data/opensim_results/video'); VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 FRAME_DIR = Path('/tmp/stoop_box_frames'); FRAME_DIR.mkdir(parents=True, exist_ok=True)
 OUT_MP4 = VIDEO_DIR / 'stoop_box_comparison_v2.mp4'
-OUT_PREVIEW = Path('/data/opensim_results/box_lift_preview_v4.png')
+OUT_PREVIEW = Path('/data/opensim_results/box_lift_preview_v6.png')
 
 FPS = 30
 T_TOTAL = 3.0
@@ -51,12 +51,12 @@ def alpha_spine(t):
 BOX_SIZE = (0.20, 0.15, 0.20)   # x, y, z (m) — width, height, depth
 # Forward offset added to hand-center position after grasp (avoids torso clipping)
 BOX_HAND_X_OFFSET = 0.08
-# Floor pose (before grasp): aligned to grasp-time hand position in x,z.
-# v2 uses stoop_box20kg_v2.mot (semi-squat lift): hand_center y = −0.606 m at t=2.0.
-# Box bottom at virtual floor y=−0.775 (user reference), so box center y=−0.70
-# and box top y=−0.625 aligns within 2 cm of the hand at grasp (natural contact).
+# Floor pose (before grasp): box bottom sits exactly on rendered grid y=−0.905.
+# Box center = grid_y + BOX_SIZE.y/2 = −0.905 + 0.075 = −0.83.
+# Known limitation: hand at t=2.0 is at y=−0.606 (see KNOWN_LIMITATIONS.md) →
+# 15 cm vertical pop at grasp. Accepted as interim until Moco motion regen.
 BOX_FLOOR_X = 0.706   # hand_center.x(t=2.0) + BOX_HAND_X_OFFSET
-BOX_FLOOR_Y = -0.70   # box center (bottom −0.775, top −0.625)
+BOX_FLOOR_Y = -0.905 + BOX_SIZE[1] / 2.0   # = -0.83, bottom on grid
 BOX_FLOOR_Z = -0.032  # hand_center.z(t=2.0)
 
 
@@ -236,12 +236,16 @@ def render_3d_panel(model, state, meshes, muscle_names, acts_l, acts_r, t,
                             point_size=1, shape=None, always_visible=True,
                             bold=True)
         # Floor
+        # Floor grid bumped to opacity 0.75 (was 0.4) to visually occlude
+        # feet-below-grid during peak bend (motion lacks ground contact constraint).
         floor = pv.Plane(center=(0.1, -0.905, 0.0), direction=(0, 1, 0),
                          i_size=2.5, j_size=2.5)
-        pl.add_mesh(floor, color='#444444', opacity=0.4, show_edges=True,
+        pl.add_mesh(floor, color='#444444', opacity=0.75, show_edges=True,
                     edge_color='#666666', line_width=1)
+        # Camera rotated +35° azimuth (front-right 3/4) to reduce visibility of
+        # motion's ground-contact clipping (feet go 15 cm below grid at peak bend).
         pl.camera_position = [
-            (1.5, 0.25, 2.6),
+            (2.756, 0.25, 1.385),   # was (1.5, 0.25, 2.6) — +35° rotation about focal
             (0.2, -0.10, 0.0),
             (0.0, 1.0, 0.0),
         ]
@@ -253,8 +257,11 @@ def render_3d_panel(model, state, meshes, muscle_names, acts_l, acts_r, t,
 
 
 # ---------------- bottom overlay ----------------
-def composite_frame(img_3d_path, out_path, t, es_l_pct, es_r_pct, torque_now_nm,
-                    box_on):
+def composite_frame(img_3d_path, out_path, t,
+                    es_l_peak, es_r_peak, es_l_mean, es_r_mean,
+                    torque_now_nm, box_on):
+    """Overlay: primary metric = ES peak (max across ES muscles);
+    secondary = ES mean (across 76 muscles). Bar scale 0–100%."""
     img3d = Image.open(img_3d_path).convert('RGB')
     W, H = RES_W, RES_H
     canvas = Image.new('RGB', (W, H), (240, 240, 240))
@@ -271,49 +278,52 @@ def composite_frame(img_3d_path, out_path, t, es_l_pct, es_r_pct, torque_now_nm,
     fig.patch.set_facecolor('#f0f0f0')
 
     phase, pcolor = phase_label(t)
-    ax.text(0.02, 0.80, 'Box Lift 20 kg (semi-squat)  —  Baseline vs SMA Suit (200 N · 24 N·m peak)',
+    ax.text(0.02, 0.82, 'Box Lift 20 kg (semi-squat)  —  Baseline vs SMA Suit (200 N · 24 N·m peak)',
             fontsize=19, fontweight='bold', color='black', transform=ax.transAxes)
-    ax.text(0.02, 0.58, f'Phase: {phase}   •   box grasped at t = 2.0 s',
+    ax.text(0.02, 0.63, f'Phase: {phase}   •   box grasped at t = 2.0 s',
             fontsize=13, color=pcolor, transform=ax.transAxes, fontweight='bold')
 
-    reduc = (100.0 * (es_l_pct - es_r_pct) / es_l_pct) if es_l_pct > 1e-3 else 0.0
-    meta = (f't = {t:4.2f} s   |   ES: {es_l_pct:4.1f} % → {es_r_pct:4.1f} %   '
-            f'(Δ {reduc:+.1f} %)   |   Suit torque = {torque_now_nm:5.2f} N·m   '
+    reduc = (100.0 * (es_l_peak - es_r_peak) / es_l_peak) if es_l_peak > 1e-3 else 0.0
+    meta = (f't = {t:4.2f} s   |   ES peak: {es_l_peak:4.1f}% → {es_r_peak:4.1f}%   '
+            f'(Δ {reduc:+.1f}%)   |   Suit torque = {torque_now_nm:5.2f} N·m   '
             f'|   Box = {"ON (20 kg)" if box_on else "OFF"}')
-    ax.text(0.02, 0.32, meta, fontsize=14, family='monospace',
+    ax.text(0.02, 0.44, meta, fontsize=14, family='monospace',
             color='#222', transform=ax.transAxes)
+    ax.text(0.02, 0.28,
+            f'(ES mean across 76 muscles: {es_l_mean:4.1f}% → {es_r_mean:4.1f}%)',
+            fontsize=11, family='monospace', color='#666', transform=ax.transAxes)
 
-    # ES comparison bars
+    # ES peak comparison bars (0–100% scale)
     bar_l, bar_r = 0.40, 0.98
-    bar_h = 0.11
-    y_base = 0.17
+    bar_h = 0.10
+    y_base = 0.15
     ax.add_patch(plt.Rectangle((bar_l, y_base), bar_r - bar_l, bar_h,
                                transform=ax.transAxes, facecolor='white',
                                edgecolor='black', lw=1))
-    frac_b = min(max(es_l_pct / 25.0, 0.0), 1.0)
+    frac_b = min(max(es_l_peak / 100.0, 0.0), 1.0)
     ax.add_patch(plt.Rectangle((bar_l, y_base), (bar_r - bar_l) * frac_b, bar_h,
                                transform=ax.transAxes,
                                facecolor=plt.cm.coolwarm(frac_b), edgecolor='none'))
     ax.text(bar_l - 0.005, y_base + bar_h / 2, '0 N',
-            fontsize=11, ha='right', va='center', transform=ax.transAxes)
+            fontsize=10, ha='right', va='center', transform=ax.transAxes)
     y_suit = 0.03
     ax.add_patch(plt.Rectangle((bar_l, y_suit), bar_r - bar_l, bar_h,
                                transform=ax.transAxes, facecolor='white',
                                edgecolor='black', lw=1))
-    frac_s = min(max(es_r_pct / 25.0, 0.0), 1.0)
+    frac_s = min(max(es_r_peak / 100.0, 0.0), 1.0)
     ax.add_patch(plt.Rectangle((bar_l, y_suit), (bar_r - bar_l) * frac_s, bar_h,
                                transform=ax.transAxes,
                                facecolor=plt.cm.coolwarm(frac_s), edgecolor='none'))
     ax.text(bar_l - 0.005, y_suit + bar_h / 2, '200 N',
-            fontsize=11, ha='right', va='center', transform=ax.transAxes)
-    for pct in (0, 5, 10, 15, 20, 25):
-        x = bar_l + (bar_r - bar_l) * (pct / 25.0)
+            fontsize=10, ha='right', va='center', transform=ax.transAxes)
+    for pct in (0, 20, 40, 60, 80, 100):
+        x = bar_l + (bar_r - bar_l) * (pct / 100.0)
         ax.plot([x, x], [y_suit - 0.02, y_suit], color='k', lw=0.8,
                 transform=ax.transAxes, clip_on=False)
         ax.text(x, y_suit - 0.05, f'{pct}', fontsize=9, ha='center',
                 transform=ax.transAxes)
     ax.text((bar_l + bar_r) / 2, y_base + bar_h + 0.02,
-            'ES mean activation (%)  —  scale 0–25%',
+            'ES peak activation (max across ES muscles, %)  —  scale 0–100%',
             fontsize=10, ha='center', color='#333', transform=ax.transAxes)
 
     fig.savefig(str(out_path).replace('.png', '_full.png'), dpi=100,
@@ -346,16 +356,20 @@ def render_one(t, out_png, ctx):
     apply_motion(model, state, mot_tbl, t)
     acts_l = activations_at(t_l, dat_l, t, lab_l, muscle_names)
     acts_r = activations_at(t_r, dat_r, t, lab_r, muscle_names)
-    es_l_pct = 100.0 * float(np.mean([acts_l[n] for n in es_names]))
-    es_r_pct = 100.0 * float(np.mean([acts_r[n] for n in es_names]))
+    es_l_peak = 100.0 * float(np.max([acts_l[n] for n in es_names]))
+    es_r_peak = 100.0 * float(np.max([acts_r[n] for n in es_names]))
+    es_l_mean = 100.0 * float(np.mean([acts_l[n] for n in es_names]))
+    es_r_mean = 100.0 * float(np.mean([acts_r[n] for n in es_names]))
     torque_nm = T_PEAK_NM * alpha_spine(t)
     box_on = t >= BOX_START_T - 1e-6
     tmp_3d = Path(str(out_png).replace('.png', '_3d.png'))
     render_3d_panel(model, state, meshes, muscle_names, acts_l, acts_r, t, tmp_3d)
-    composite_frame(tmp_3d, out_png, t, es_l_pct, es_r_pct, torque_nm, box_on)
+    composite_frame(tmp_3d, out_png, t,
+                    es_l_peak, es_r_peak, es_l_mean, es_r_mean,
+                    torque_nm, box_on)
     try: os.remove(tmp_3d)
     except OSError: pass
-    return es_l_pct, es_r_pct
+    return es_l_peak, es_r_peak
 
 
 def preview():
@@ -385,10 +399,10 @@ def video():
     for fi in range(N_FRAMES):
         t = fi / FPS
         frame_path = out_dir / f'frame_{fi:04d}.png'
-        es_l, es_r = render_one(t, frame_path, ctx)
+        es_l_peak, es_r_peak = render_one(t, frame_path, ctx)
         if fi % 10 == 0:
             print(f'  frame {fi+1}/{N_FRAMES}  t={t:.2f}s  '
-                  f'ES 0N={es_l:.1f}%  ES 200N={es_r:.1f}%  '
+                  f'ES peak 0N={es_l_peak:.1f}%  200N={es_r_peak:.1f}%  '
                   f'el={time.time()-t0:.1f}s')
     print(f'frames done in {time.time()-t0:.1f}s')
 
