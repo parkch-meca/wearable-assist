@@ -1,0 +1,69 @@
+# Kinematic error: original vs moco_stoop
+
+Max error across 9 bodies × 7 timepoints: **0.0000 mm**
+
+| t (s) | body | err (mm) |
+|---|---|---|
+| 0.0 | pelvis | 0.0000 |
+| 0.0 | thoracic10 | 0.0000 |
+| 0.0 | calcn_r | 0.0000 |
+| 0.0 | hand_R | 0.0000 |
+| 0.0 | femur_r | 0.0000 |
+| 0.0 | tibia_r | 0.0000 |
+| 0.0 | head_neck | 0.0000 |
+| 0.0 | humerus_R | 0.0000 |
+| 0.0 | radius_R | 0.0000 |
+| 1.0 | pelvis | 0.0000 |
+| 1.0 | thoracic10 | 0.0000 |
+| 1.0 | calcn_r | 0.0000 |
+| 1.0 | hand_R | 0.0000 |
+| 1.0 | femur_r | 0.0000 |
+| 1.0 | tibia_r | 0.0000 |
+| 1.0 | head_neck | 0.0000 |
+| 1.0 | humerus_R | 0.0000 |
+| 1.0 | radius_R | 0.0000 |
+| 2.0 | pelvis | 0.0000 |
+| 2.0 | thoracic10 | 0.0000 |
+| 2.0 | calcn_r | 0.0000 |
+| 2.0 | hand_R | 0.0000 |
+| 2.0 | femur_r | 0.0000 |
+| 2.0 | tibia_r | 0.0000 |
+| 2.0 | head_neck | 0.0000 |
+| 2.0 | humerus_R | 0.0000 |
+| 2.0 | radius_R | 0.0000 |
+| 2.5 | pelvis | 0.0000 |
+| 2.5 | thoracic10 | 0.0000 |
+| 2.5 | calcn_r | 0.0000 |
+| 2.5 | hand_R | 0.0000 |
+| 2.5 | femur_r | 0.0000 |
+| 2.5 | tibia_r | 0.0000 |
+| 2.5 | head_neck | 0.0000 |
+| 2.5 | humerus_R | 0.0000 |
+| 2.5 | radius_R | 0.0000 |
+| 3.0 | pelvis | 0.0000 |
+| 3.0 | thoracic10 | 0.0000 |
+| 3.0 | calcn_r | 0.0000 |
+| 3.0 | hand_R | 0.0000 |
+| 3.0 | femur_r | 0.0000 |
+| 3.0 | tibia_r | 0.0000 |
+| 3.0 | head_neck | 0.0000 |
+| 3.0 | humerus_R | 0.0000 |
+| 3.0 | radius_R | 0.0000 |
+| 4.0 | pelvis | 0.0000 |
+| 4.0 | thoracic10 | 0.0000 |
+| 4.0 | calcn_r | 0.0000 |
+| 4.0 | hand_R | 0.0000 |
+| 4.0 | femur_r | 0.0000 |
+| 4.0 | tibia_r | 0.0000 |
+| 4.0 | head_neck | 0.0000 |
+| 4.0 | humerus_R | 0.0000 |
+| 4.0 | radius_R | 0.0000 |
+| 5.0 | pelvis | 0.0000 |
+| 5.0 | thoracic10 | 0.0000 |
+| 5.0 | calcn_r | 0.0000 |
+| 5.0 | hand_R | 0.0000 |
+| 5.0 | femur_r | 0.0000 |
+| 5.0 | tibia_r | 0.0000 |
+| 5.0 | head_neck | 0.0000 |
+| 5.0 | humerus_R | 0.0000 |
+| 5.0 | radius_R | 0.0000 |
