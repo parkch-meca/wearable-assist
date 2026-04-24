@@ -23,3 +23,6 @@ __pycache__/
 # 환경
 .env
 *.log
+
+# Moco external kill-switch file
+delete_this_to_stop_optimization*
