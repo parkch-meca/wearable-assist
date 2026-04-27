@@ -63,7 +63,54 @@ stoop 동작이 5 단계로 나뉘며, 각 단계의 ES 부하가 명확히 구�
 | 3 | Phase 2 — 박스 들기 MocoInverse + 손 외력 | KNOWN_LIMITATIONS의 박스 영상 근본 해결 |
 | 4 | 성별/연령 확장 (65세 여성 모델) | 일반화 제외. 모델 스케일링 작업 별도 큼 |
 
-## 4. 산출물 위치
+## 4. Recruitment hierarchy (Hold phase)
+
+| Muscle | Hold mean (%) | Functional role |
+|---|---:|---|
+| IL_R10_r/l | 88 / 86 | **Primary** extensor (rib level 10) |
+| LTpL_L5_r/l | 49 / 50 | **Lumbar stabilizer** (sustained) |
+| IL_R11_r/l | 23 / 21 | Auxiliary extensor |
+| IL_R12_r/l | 11 / 10 | Minor contribution |
+| rect_abd_r/l | 0 / 0 | Antagonist (correctly inactive) ✓ sanity check |
+
+→ Suit-effect analysis (Part 2) tracks whether suit reduces IL_R10 disproportionately, and whether LTpL_L5 picks up redistributed load.
+
+## 5. Reference motion verification (Case A)
+
+We checked whether the IL_R10 dip at t≈2.7 s (~82 %) between two peaks (t=2.4 s 91.4 %, t=3.1 s 92.4 %) reflects motion structure or genuine phasic recruitment.
+
+Quantitative finding from `motion_velocity.png`:
+- Lumbar FE velocity: 0.0 deg/s in t=2.5–3.0 s (max |v| < 0.1 deg/s, < 0.5 % of the eccentric peak 22 deg/s)
+- Reference motion has a clear ~0.5 s plateau at maximum flexion
+
+→ **Case A** confirmed: ES dip during the plateau reflects pure static hold (no dynamic load), while peaks at t=2.4 / 3.1 reflect deceleration / acceleration of the trunk. MocoInverse faithfully tracks the kinematic transitions.
+
+Interpretation note: the user's "Hold" phase boundary (2.0–2.5 s) was set ~0.5 s earlier than the actual motion plateau (2.5–3.0 s); the labeled phase windows overlap eccentric/concentric transitions. Numerical conclusions remain valid.
+
+## 6. IL phasic vs LTpL tonic (tentative observation)
+
+Peak-to-trough ratio across t=1.0–4.5 s active region:
+
+| Muscle | Mean | CV | Peak/Trough | Pattern |
+|---|---:|---:|---:|---|
+| IL_R11_r | 11.6 | 0.86 | **25.4** | Strongly phasic |
+| IL_R12_r | 4.6 | 1.10 | 12.7 | Phasic |
+| IL_R10_r | 51.2 | 0.64 | 3.7 | Mixed (high baseline) |
+| LTpL_L4_r | 4.7 | 0.73 | 8.4 | Phasic |
+| LTpL_L5_r | 30.3 | 0.55 | **3.0** | Sustained |
+| LTpL_L3_r | 1.9 | 1.04 | 5.0 | Mixed |
+
+→ Tentatively: **at the dominant force-producing levels (IL_R10, LTpL_L5), patterns are similar (P/T ≈ 3)**. Phasic/tonic distinction is more visible at the low-level recruits (IL_R11/R12 vs LTpL_L4). Recruitment-threshold effect rather than strict strategy difference. Validation against EMG required for a definitive claim.
+
+## 7. Caveats / limitations
+
+- **Synthetic motion**: kinematics designed by us, not from a human subject. Validates pipeline; does not represent inter-individual variability.
+- **Single subject (male)**: ThoracolumbarFB v2.0 default anthropometry. Phase 1d (planned) will scale to other demographics.
+- **Phase 1a muscle restriction**: spine + abdominal only (114). Multifidus and obliques deferred to Phase 1b (independent sub-experiment).
+- **Reserve actuators carry leg moments**: hip 31 Nm, knee 158 Nm, ankle 37 Nm at peak. By design — Phase 1a excludes leg muscles. Spine FE reserve (19.4 Nm) is the relevant quantity and matches SO R10 (22 Nm).
+- **EMG validation pending**: phasic/tonic interpretation and Hold-vs-Concentric ranking should be cross-checked against literature EMG (Granata & Marras 1995, Floyd & Silver 1955, etc.).
+
+## 8. 산출물 위치
 
 - 보고서: [`results/phase1a_full/full_report.md`](../../results/phase1a_full/full_report.md)
 - 폴리시드 figure: [`docs/images/phase1a_full/figure_5phase_activation.png`](images/phase1a_full/figure_5phase_activation.png), [`figure_summary_polished.png`](images/phase1a_full/figure_summary_polished.png)

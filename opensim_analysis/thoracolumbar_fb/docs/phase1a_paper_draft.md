@@ -26,6 +26,14 @@ Spine flexion-extension reserve actuators absorbed 19.4 Nm at peak hold (t = 2.5
 
 Rectus abdominis activation remained at 0 % throughout the lift, as expected for a flexor muscle during a posture-extension task.
 
+## Discussion — Reference motion structure
+
+The double-peak structure in IL_R10 activation (peaks at t=2.4 s and t=3.1 s, dip at t=2.7 s) reflects the kinematic structure of the reference motion: the lumbar flexion-extension velocity reaches zero from t=2.5 s to t=3.0 s, creating a ~0.5 s static-hold plateau. During this plateau the muscle exerts a steady isometric torque to maintain the bent posture (~82 %); during the deceleration approach (t=2.4 s) and acceleration departure (t=3.1 s) of the trunk it produces additional dynamic torque, hence the bracketing peaks. MocoInverse correctly distributes activation according to this kinematic structure, illustrating why dynamics-aware solvers reveal structure that instantaneous SO does not.
+
+## Discussion — Recruitment hierarchy and IL/LTpL pattern (tentative)
+
+A clear recruitment hierarchy emerged during the Hold phase: IL_R10 (88 %) > LTpL_L5 (50 %) > IL_R11 (23 %) > IL_R12 (11 %), with rectus abdominis correctly inactive throughout the lift (sanity check satisfied). Iliocostalis at lower rib levels (IL_R11, IL_R12) showed strongly phasic activation profiles (peak-to-trough ratios > 12), while longissimus at the dominant lumbar level (LTpL_L5) showed sustained activation (peak-to-trough 3.0). At the most-active levels (IL_R10, LTpL_L5) the profiles were qualitatively similar, suggesting the phasic-tonic distinction may reflect recruitment threshold rather than a fixed differentiation in functional role. EMG validation will be needed to confirm whether this pattern is genuine motor-control strategy or a property of the optimization.
+
 ## Discussion — Implications for assistive device design
 
 This activation dynamics analysis demonstrates that the hold and concentric phases impose the greatest demand on erector spinae muscles (peak activations 87.7 % and 82.8 %, respectively), while eccentric activation is approximately half (53.3 %). For SMA fabric-based assistive suits, this finding has direct design implications: timing assistive torque to the hold-and-extend phase may yield disproportionately greater benefit than uniform assistance throughout the lift cycle. The 35 % activation asymmetry between eccentric and concentric phases — undetectable by SO — provides a quantitative basis for **phase-targeted assist control strategies**.
@@ -35,6 +43,20 @@ Additionally, the close agreement between MocoInverse (19.4 Nm) and SO R10 (22 N
 Future work will (i) extend Phase 1a to include the multifidus group (Phase 1b) to quantify deep stabilizer load sharing, (ii) integrate the SMA suit thoracic-pelvic torque couple into MocoInverse to compute phase-resolved assist effects, and (iii) extend to box-lifting tasks with hand external loads.
 
 ---
+
+## Limitations
+
+This Phase 1a analysis has several limitations that constrain the generalizability of the findings.
+
+(i) **Synthetic kinematics**: the reference motion (`stoop_synthetic_v5.mot`) was designed for analytic clarity rather than measured from a human subject. While suitable for pipeline validation and qualitative phase-resolution analysis, inter-individual variability in lifting strategy is not captured.
+
+(ii) **Single-subject anthropometry**: the ThoracolumbarFB v2.0 model represents an adult male. Extension to female and aged populations (Phase 1d) requires model scaling not yet performed.
+
+(iii) **Restricted muscle set**: Phase 1a includes 114 muscles (iliocostalis, longissimus thoracis, quadratus lumborum, rectus abdominis); the multifidus group and obliques (~150 additional muscles) are deferred to a focused Phase 1b sub-experiment quantifying deep stabilizer load sharing.
+
+(iv) **Reserve actuator residuals at non-spine joints**: leg muscles are excluded from Phase 1a, so hip, knee, and ankle moments are absorbed by reserve actuators (31, 158, 37 Nm at peak respectively). Spine flexion-extension reserve, the relevant quantity for ES analysis, was 19.4 Nm — within 12 % of the SO R10 reference (22 Nm).
+
+(v) **EMG validation pending**: the recruitment-hierarchy and phasic-vs-tonic observations require cross-validation against subject EMG before being reported as definitive findings.
 
 ## Suggested Figure X — 5-phase ES activation
 

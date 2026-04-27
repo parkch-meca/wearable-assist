@@ -90,6 +90,39 @@ MocoInverse prescribes kinematics as equality constraints — no tracking trade-
 - Spine FE reserve sum at peak (t=2.5 s): **19.4 Nm** — matches SO R10 reference (22 Nm) within 12 %.
 - Eccentric→concentric activation asymmetry: smoke 2-s window +29.7 %p vs full 5-s +29.4 %p (variance 0.3 %p). Result is robust to motion window length and mesh density.
 
+## 7b. Verifications (post-hoc)
+
+### Bilateral symmetry sanity (Phase 1a Full)
+
+| Pair | Right | Left | Difference |
+|---|---:|---:|---:|
+| IL_R10 Hold mean | 87.7 % | 85.6 % | 2.1 %p |
+| IL_R11 Hold mean | 23.1 % | 21.3 % | 1.8 %p |
+| LTpL_L5 Hold mean | 48.6 % | 49.9 % | −1.3 %p |
+| LTpL_L5 Δ(con−ecc) | +13.4 %p | +14.2 %p | 0.8 %p |
+
+→ Left-right activation differences ≤ 2.1 %p. Model symmetry confirmed; provides clean baseline for asymmetric tasks (one-arm reach, lateral bend) in future analyses.
+
+### Reference motion plateau check (Case A)
+
+Aggregate lumbar flexion-extension velocity from `stoop_synthetic_v5.mot`:
+
+| Phase | Time | max |velocity| (deg/s) |
+|---|---|---:|
+| Eccentric | 1.0–2.0 | 22.0 |
+| Hold (script-defined) | 2.0–2.5 | 15.6 |
+| **True plateau** | **2.5–3.0** | **0.07** |
+| Concentric | 2.5–4.0 | 22.0 |
+
+Reference motion has a clear ~0.5 s near-static plateau at peak flexion (vel < 0.5 % of eccentric peak). The IL_R10 dip at t≈2.7 s during this plateau is a faithful response to the kinematic structure (Case A). Note that the user-defined "Hold" phase (2.0–2.5) overlaps the eccentric ramp end; the actual plateau falls in the early "Concentric" window. Phase boundary semantics may be revised in subsequent reports for precision.
+
+### Quiet & Recovery phase observations (minor)
+
+- t≈0.4 s: brief activation excursion (~5 %) in IL_R10 — coincides with motion onset (small acceleration impulse). Not a sustained phase.
+- t≈4.0–4.3 s: short re-activation spike (~28 %) in IL_R10 during the deceleration phase of the concentric extension as the trunk approaches upright. Mirror of the t≈2.4 s deceleration peak, scaled to the lower late-cycle moment demand.
+
+These are kinematic-driven (acceleration/deceleration of the trunk), not independent recruitment events.
+
 ## 8. Known issues / limitations
 
 | Issue | Status / mitigation |
