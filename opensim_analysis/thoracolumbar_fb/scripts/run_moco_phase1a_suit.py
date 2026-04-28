@@ -26,13 +26,17 @@ SRC_MODEL = '/data/opensim_models/ThoracolumbarFB/Fullbody_TLModels_v2.0_OS4x/Ma
 MOT = '/data/stoop_motion/stoop_synthetic_v5.mot'
 GRF_STO = '/data/stoop_motion/stoop_grf_v5.sto'
 PHASE1A_LIST = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/phase1a_muscle_list.txt'
-OUT_ROOT = Path('/data/wearable-assist/results/phase1a_suit_effect')
-OUT_ROOT.mkdir(parents=True, exist_ok=True)
+OUT_ROOT_DEFAULT = Path('/data/wearable-assist/results/phase1a_suit_effect')
 
 T_START, T_END = 0.0, 5.0
 MESH = 50
 RESERVE_OPTF = 10.0
-SUIT_TORQUE_PEAK = 24.0   # N·m  (200 N × 0.12 m moment arm)
+MOMENT_ARM = 0.12
+# Default; override via env var SUIT_FORCE_N
+SUIT_FORCE_N = float(os.environ.get('SUIT_FORCE_N', '200'))
+SUIT_TORQUE_PEAK = SUIT_FORCE_N * MOMENT_ARM
+OUT_ROOT = Path(os.environ.get('OUT_ROOT', str(OUT_ROOT_DEFAULT)))
+OUT_ROOT.mkdir(parents=True, exist_ok=True)
 
 
 GRF_COLS = [

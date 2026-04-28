@@ -1,6 +1,20 @@
-# Phase 1a — Paper Draft Fragments
+# Phase 1a — Paper Draft (consolidated)
 
-Working English text for the manuscript Methods, Results, and Discussion sections. Draft only — pending coauthor review.
+Working manuscript text covering Methods, Results, and Discussion sections from Phase 1a (114-muscle MocoInverse on stoop_v5). All numerical claims trace to artifacts in `results/phase1a_full/`, `results/phase1a_suit_effect/`, `results/phase1a_suit_sweep/`.
+
+**Status**: 2026-04-28, post-suit-sweep. Headline figures and tables identified for paper. Pending coauthor review.
+
+## Outline
+
+- §M1 Static optimization (already in manuscript) — keep
+- **§M2 MocoInverse and dynamic muscle activation analysis (new)** — see Methods below
+- §R1 SO results (already in manuscript) — keep
+- **§R2 Five-phase activation structure** — see Results A
+- **§R3 Eccentric vs concentric asymmetry** — see Results B
+- **§R4 Suit dose-response (Moco)** — see Results C
+- §D1 Methodological strengths — see Discussion A
+- §D2 Phase-targeted assistive design implication — see Discussion B
+- §D3 Limitations — see Limitations
 
 ---
 
@@ -58,9 +72,35 @@ This Phase 1a analysis has several limitations that constrain the generalizabili
 
 (v) **EMG validation pending**: the recruitment-hierarchy and phasic-vs-tonic observations require cross-validation against subject EMG before being reported as definitive findings.
 
+## Results — Section C: Suit dose-response confirms SO §1.6
+
+We swept the suit force from 0 to 200 N (5 levels: 0, 50, 100, 150, 200 N → torque 0, 6, 12, 18, 24 N·m), running independent MocoInverse optimizations for each. All five optimizations converged to local optima (`Optimal Solution Found`) in 670–730 s of wall time. Linear fits of the relative ES_mean reduction (averaged over six dominant ES muscles) versus suit torque produced:
+
+| Phase | Slope (%/Nm) | R² | Reduction @ 24 N·m |
+|---|---:|---:|---:|
+| Hold (2.0–2.5 s) | **1.164** | 1.0000 | **27.95 %** |
+| Concentric (2.5–4.0 s) | 1.186 | 1.0000 | 28.46 % |
+| **SO §1.6 reference (R100)** | **1.206** | 1.0000 | **28.97 %** |
+
+The MocoInverse slope (1.164–1.186 %/Nm) agrees with the SO reference (1.206 %/Nm) within 1.7–3.5 % relative difference, and the reduction at 24 N·m matches within 1.0 percentage point. Both methods exhibit essentially perfect linearity (R² ≥ 0.999). The dominant single muscle, IL_R10_r, shows a higher per-torque sensitivity (1.603 %/Nm in Hold, 1.632 %/Nm in Concentric, R² = 1.0000), as expected for a muscle whose moment arm closely aligns with the assistive torque axis.
+
+This dose-response agreement validates the SO suit-effect quantification reported in §1.6 and demonstrates that the dynamics-aware MocoInverse formulation does not introduce new pathologies in the linear regime.
+
 ## Suggested Figure X — 5-phase ES activation
 
 [`docs/images/phase1a_full/figure_5phase_activation.png`](images/phase1a_full/figure_5phase_activation.png) — Bar chart showing mean ± SD activation per phase (Quiet / Eccentric / Hold / Concentric / Recovery) for five key ES muscles (`IL_R10_r/l`, `IL_R11_r`, `LTpL_L5_r/l`).
+
+## Suggested Figure Z — Suit dose-response
+
+[`docs/images/phase1a_full/figure_suit_sweep_dose_response.png`](images/phase1a_full/figure_suit_sweep_dose_response.png) — Two-panel: (A) ES_mean reduction (%) vs torque (N·m), comparing Moco Hold and Concentric phase points to the SO §1.6 dashed line; (B) IL_R10_r dose-response. All four Moco fits show R² = 1.0000.
+
+## Suggested Figure W — Phase-targeted suit effect
+
+[`docs/images/phase1a_full/figure_5phase_delta_heatmap.png`](images/phase1a_full/figure_5phase_delta_heatmap.png) — Heatmap of ΔES (suit − baseline) at 24 N·m across 5 phases × 6 dominant muscles. The largest reductions concentrate in Hold and Concentric phases; Quiet and Recovery phases show ≤ 4 percentage points of change.
+
+## Suggested Figure V — Recruitment redistribution
+
+[`docs/images/phase1a_full/figure_hierarchy_redistribution.png`](images/phase1a_full/figure_hierarchy_redistribution.png) — Hold-phase activation of four ES muscles, baseline vs +24 N·m suit. Dominant muscles (IL_R10) decrease by ~34 %p; minor recruits (IL_R12) increase by ~2 %p, suggesting load redistribution toward previously-unsaturated muscles.
 
 ## Suggested Table Y — Phase × muscle activation
 

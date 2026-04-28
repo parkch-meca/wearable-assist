@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OpenSimDocument Version="40000">
+  <ExternalLoads name="phase1a_grf_suit">
+    <objects>
+      <ExternalForce name="grf_R">
+        <isDisabled>false</isDisabled>
+        <applied_to_body>calcn_r</applied_to_body>
+        <force_expressed_in_body>ground</force_expressed_in_body>
+        <point_expressed_in_body>ground</point_expressed_in_body>
+        <force_identifier>ground_force_R_v</force_identifier>
+        <point_identifier>ground_force_R_p</point_identifier>
+        <torque_identifier>ground_torque_R_</torque_identifier>
+        <data_source_name>ext_grf_suit.mot</data_source_name>
+      </ExternalForce>
+      <ExternalForce name="grf_L">
+        <isDisabled>false</isDisabled>
+        <applied_to_body>calcn_l</applied_to_body>
+        <force_expressed_in_body>ground</force_expressed_in_body>
+        <point_expressed_in_body>ground</point_expressed_in_body>
+        <force_identifier>ground_force_L_v</force_identifier>
+        <point_identifier>ground_force_L_p</point_identifier>
+        <torque_identifier>ground_torque_L_</torque_identifier>
+        <data_source_name>ext_grf_suit.mot</data_source_name>
+      </ExternalForce>
+      <ExternalForce name="suit_thoracic">
+        <isDisabled>false</isDisabled>
+        <applied_to_body>thoracic1</applied_to_body>
+        <force_expressed_in_body>ground</force_expressed_in_body>
+        <point_expressed_in_body>ground</point_expressed_in_body>
+        <force_identifier>thor_F_v</force_identifier>
+        <point_identifier>thor_P_p</point_identifier>
+        <torque_identifier>thor_T_</torque_identifier>
+        <data_source_name>ext_grf_suit.mot</data_source_name>
+      </ExternalForce>
+      <ExternalForce name="suit_pelvis">
+        <isDisabled>false</isDisabled>
+        <applied_to_body>pelvis</applied_to_body>
+        <force_expressed_in_body>ground</force_expressed_in_body>
+        <point_expressed_in_body>ground</point_expressed_in_body>
+        <force_identifier>pel_F_v</force_identifier>
+        <point_identifier>pel_P_p</point_identifier>
+        <torque_identifier>pel_T_</torque_identifier>
+        <data_source_name>ext_grf_suit.mot</data_source_name>
+      </ExternalForce>
+    </objects>
+    <groups />
+    <datafile>ext_grf_suit.mot</datafile>
+  </ExternalLoads>
+</OpenSimDocument>
