@@ -10,6 +10,8 @@ SMA fabric muscle 기반 wearable suit가 들기 작업 중 척추기립근(erec
 - **stoop lift** — 제자리 허리 굽힘 (무릎 거의 고정, 허리만 굽힘). v5 모션(`stoop_synthetic_v5.mot`)이 여기에 해당.
 - **semi-squat lift** 또는 **stoop-squat hybrid** — 박스 들기처럼 무릎·고관절·허리가 함께 굽는 실제 들기 자세. `stoop_box20kg_v2.mot` (박스 v2)가 여기에 해당.
 - `§1.6`의 "stoop lift 28–29 % 감소" 수치는 v5 제자리 stoop에만 적용; 박스 v2 수치는 별도 리포트.
+- **박스 motion v3-v7** — semi-squat lift 카테고리. 양 측면 잡기 + Coupler 제거 모델 사용.
+
 
 ## Directory Conventions
 
@@ -70,6 +72,8 @@ Generated with Claude Code
 3. **Claude Code 자가 Vision 검증 체크리스트** — 1차 판단
    - 방법: 방금 생성한 PNG를 `Read` 툴로 열어 체크리스트 항목별 판정
    - 판정: `✅ OK` / `⚠️ 의심` / `❌ 문제` + 근거 한 줄씩
+   → 멀티 에이전트 도입 후 이 protocol은 **viz-agent**가 자동 수행함.
+   viz-agent 호출 시 3-tier 검증 (로컬 경로 + GitHub URL + 자가 vision) 자동 적용.
 
 ### 적용 규칙
 
@@ -78,13 +82,33 @@ Generated with Claude Code
 - 자가 검증이 ✅여도 중요 결정(SO 실행 / 본 MP4 렌더 / 논문 figure 확정)은 반드시 2중 육안 검증 통과 후에만 진행
 - 자가 검증은 **조기 오류 탐지** 용도이며 사용자 승인을 대체하지 않음
 
-## Current Focus (updated regularly)
+## Current Focus (updated 2026-04-29)
 
-- [완료] 박스 모션 v2 재생성 (semi-squat lift, hip+6° knee−10° ankle+4° pelvis_ty−0.10 m; 손이 박스 윗면 y ≈ −0.61 m 접촉)
-- [진행중] 박스 SO v2 4조건 재실행 + 프리뷰 v4
-- [대기] 박스 비교 MP4 v2 본 렌더 (2중 육안 검증 후)
-- [대기] OpenSim Moco 분석 (eccentric / concentric 비대칭 패턴 반영)
-- [대기] 성별 · 연령 그룹 확장
+### Completed
+- ✅ OpenSim Moco 환경 진입 (locked coord → WeldJoint 변환)
+- ✅ Phase 1a Full (140s, mesh 50, 5초 motion, 114 muscles + GRF)
+- ✅ Phase 1a Suit Effect (24 N·m → 28% reduction, §1.6 SO 28.97% 재현)
+- ✅ Phase 1a Suit Sweep (5 conditions, slope 1.164 %/Nm, R²=1.000)
+- ✅ Phase 1a Recruitment redistribution 발견 (saturation → unsaturated)
+- ✅ Coupler 4개 제거 + 모델 _no_coupler 변형 생성
+- ✅ Phase 1a regression PASS (max ΔES 1.16 %p)
+- ✅ 멀티 에이전트 5-team 도입
+
+### In Progress
+- 🔄 박스 motion v7 (semi-squat lift, 자연 stoop 자세)
+  - 사용자 spec: pelvis 거의 안 내려감, lumbar 우세, knee 약간만, 박스 x=0.40
+  - Stage 1 IK 진행 중
+
+### Next (v7 통과 시)
+- Stage 4 시각 검증 (사용자 채팅)
+- Stage 5 video clip
+- Part 2.C.4: 4 conditions Moco 분석 (B_noload/suit50/100/200)
+- 박스 영상 v7 본 렌더
+
+### Pending
+- 성별·연령 그룹 확장 (caregiving target: 65세 여성)
+- 국문 학술지 논문 §1.6 update (Moco 결과 추가)
+- Phase 1b sub-experiment (MF 추가, ~110 muscles)
 
 ## Environment
 
@@ -93,3 +117,57 @@ Generated with Claude Code
 - 디스플레이: 렌더 시 `DISPLAY=:1` 지정
 - GitHub auth: `gh` CLI (account `parkch-meca`, HTTPS + token via keyring)
 - Git credential helper: `!/usr/bin/gh auth git-credential` (이미 설정됨)
+
+---
+
+# 멀티 에이전트 활용 원칙
+
+## 등록된 에이전트 (5)
+
+| 에이전트 | 색상 | 역할 | 트리거 |
+|---------|------|------|--------|
+| biomechanics-agent | orange | 사람 자연 동작 reference | "동작", "자세", "lifting", "stoop", "biomechanics" |
+| opensim-agent | green | 모델/IK/Moco 환경 | "model", ".osim", "Moco", "IK", "joint" |
+| moco-analysis-agent | purple | Moco 실행+분석 | "Moco solve", "ES", "결과", "비교", "plot" |
+| viz-agent | cyan | 3D rendering+검증 | "render", "video", "Stage 4", "snapshot" |
+| paper-agent | yellow | 논문 작성+문서화 | "논문", "Methods", "Results", "draft" |
+
+## 작업 흐름 표준
+
+### 1. 새 동작 설계 시 (가장 중요)
+
+박스 motion v3-v7 5번 실패의 교훈: **biomechanics-agent를 항상 가장 먼저 호출**
+
+Step 1: biomechanics-agent — docs/biomech_reference/{task}.md 작성, DO/DO NOT 명시, Image search + 문헌 reference
+Step 2: opensim-agent — biomech reference 따라 IK target 설정, Stage 1-3 IK + 자가 검증
+Step 3: viz-agent — Stage 4 grid 생성, 사용자 채팅 시각 검증 요청
+Step 4 (사용자 통과 시): moco-analysis-agent — Moco solve 실행, ES analysis + suit effect
+Step 5: paper-agent — 결과를 논문 섹션으로 가공
+
+### 2. 분석 작업 시
+
+Step 1: opensim-agent (필요 시 모델 처리)
+Step 2: moco-analysis-agent (Moco 실행 + 분석)
+Step 3: viz-agent (figure 생성)
+Step 4: paper-agent (결과 → 섹션)
+
+### 3. 논문 작업 시
+
+Step 1: paper-agent (섹션 작성, 필요 시 다른 에이전트 결과 참조)
+Step 2: viz-agent (figure 정제)
+
+## 병렬 실행 권장
+
+최대 7개 동시 (Claude Code 한계). 예: Phase 2 박스 4 conditions 한 번에 분석 시 moco-analysis-agent 4개 병렬 실행 → 시간 1/4.
+
+## 핵심 원칙
+
+1. **biomechanics-agent 우선** (박스 motion 5번 실패 교훈) — 새 동작 설계 시 무조건 biomechanics-agent 먼저. "이게 사람이 진짜 하는 동작인가?" 검증 없이 진행 금지.
+2. **시각 검증 2중 protocol** (viz-agent) — 자가 vision 검증 (1차) + 사용자 채팅 업로드 시각 검증 (2차, 결정적)
+3. **Phase 1a Regression Test** (opensim-agent) — 모델 변경 시 항상 Phase 1a 결과 동등성 검증. max ΔES > 5 %p이면 변경 사용자 협의.
+4. **Plot + Number 동반** (moco-analysis-agent) — Time series plot, Phase comparison, Linear regression (R² 동반), Heatmap or bar chart
+5. **정직한 Limitations** (paper-agent) — 연구 한계 회피하지 않음
+
+## 도입 일자
+
+2026-04-29 도입. 박스 motion v3-v7 5번 실패 후 교훈으로 정비. biomechanics-agent가 핵심 — 이 에이전트가 있었다면 v3-v7 시도 일부 회피 가능했을 것.

@@ -24,6 +24,28 @@ python opensim_analysis/thoracolumbar_fb/scripts/prepare_model_for_moco.py
 
 29 joints removed — 84 coordinates total (57 locked + 27 free-but-dormant rib X-rotations and sternum rotations that have no role in any planned analysis). Result: 81 free coords down from 165, all muscles and bodies preserved.
 
+### 2b. No-coupler variant (Phase 2 prerequisite, 2026-04-28)
+
+For Phase 2 box-handling analyses we generated a second variant `MaleFullBodyModel_v2.0_OS4_moco_stoop_no_coupler.osim` by removing four `CoordinateCouplerConstraint` entries from the Phase 1a base model:
+
+| Constraint | Function | Slope |
+|---|---|---|
+| `coupler_shoulder_elv_r` | shoulder_elv_r = f(pelvis_tilt) | −1.62 |
+| `coupler_shoulder_elv_l` | shoulder_elv_l = f(pelvis_tilt) | +1.62 |
+| `coupler_elv_angle_r` | elv_angle_r = f(pelvis_tilt) | −2.0 |
+| `coupler_elv_angle_l` | elv_angle_l = f(pelvis_tilt) | −2.0 |
+
+Diagnostic background: a 2026-04-28 reach test (`docs/reach_analysis.md`) traced four box-motion design failures (v3–v5) to these constraints, which force shoulder elevation to a fixed multiple of pelvic tilt. With pelvis_tilt = −40° (deep stoop), the constraints impose shoulder_elv_r = +64.8° — preventing the arm from hanging down to grip a low box. ROM was confirmed not the bottleneck (lumbar segments ±90°, hip 120°, etc.; see `docs/thoracolumbar_fb_rom_analysis.md`).
+
+Removal procedure (`scripts/remove_couplers.py` via OpenSim API; XML alternative is to delete or `<isDisabled>true</isDisabled>` the four `<CoordinateCouplerConstraint>` blocks). Validation:
+- `initSystem()` succeeds with `ConstraintSet` size = 0
+- Setting shoulder_elv_r = 20° and assembling preserves the value (vs original model which forces it to −1.62 × pelvis_tilt)
+- Stoop pose (pelvis_tilt = −40°, hip 110°, knee −45°, lumbar −10°/level) assembles cleanly
+
+Phase 1a regression (smoke, t = 1.0–3.0 s, mesh = 25): the original Phase 1a `.mot` reference satisfies the coupler relationship to numerical precision (max kinematic violation 0.000), so prescribed kinematics are unchanged when the coupler is removed. Re-running MocoInverse with the no-coupler model produced ES activation peaks within 1.16 %p of the original (Hold-phase peaks ≤ 0.11 %p; see `docs/phase1a_regression_test_smoke.md`). The modified model is therefore approved for Phase 2 use without affecting Phase 1a numerical claims.
+
+**Caveat**: this no-coupler variant assumes independent shoulder control and removes the passive arm-swing rhythm. It must not be reused for gait/running studies without restoring the constraints.
+
 ## 3. Phase 1a muscle subset
 
 114 muscles selected from 620 (option D per user 2026-04-24):
