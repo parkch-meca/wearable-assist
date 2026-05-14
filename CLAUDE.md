@@ -75,6 +75,32 @@ Generated with Claude Code
    → 멀티 에이전트 도입 후 이 protocol은 **viz-agent**가 자동 수행함.
    viz-agent 호출 시 3-tier 검증 (로컬 경로 + GitHub URL + 자가 vision) 자동 적용.
 
+## Grid PNG Companion Protocol (영구, 2026-05-14 도입)
+
+**모든 생성 작업 (코드, 시뮬레이션, 영상, 분석)에 사용자 검증용 Grid PNG 자동 동반**.
+
+근거: CHEOL HOON님이 채팅에 업로드 검증 가능. MP4 `.gitignore` 회피 (PNG는 GitHub push 가능). 단일 PNG로 전체 검증 가능.
+
+### 작업 종류별 Grid PNG 형식
+
+1. **Video 생성 시**: `{video_name}_grid.png` — 5+ frames × 적절한 views, 핵심 시점 캡처
+2. **Simulation 결과 시**: `{analysis_name}_results_grid.png` — 주요 plot 통합 (timeseries, comparison, dose-response), 한 장으로 전체 결과 검증
+3. **Architecture/Pipeline 다이어그램 시**: `{component}_diagram.png` — 구조도, 흐름도, 모듈 간 관계 명확
+4. **검증/Regression test 시**: `{test_name}_verification_grid.png` — 이전 vs 새 결과 비교, PASS/FAIL 시각화
+5. **Stage 4 verification (motion 등)**: 기존 3-tier protocol 유지 — frames × views grid
+
+### 저장 위치 통일
+
+- `docs/images/{phase}/{component}_grid.png`
+- GitHub push (PNG 가능)
+- 사용자 채팅 raw URL 검증
+
+### 적용 범위
+
+- **모든 agent** (viz-agent, opensim-agent, moco-analysis-agent, paper-agent, biomechanics-agent)에 적용
+- viz-agent가 주 담당이지만, 다른 agent도 작업 산출물에 Grid PNG 동반 필수
+- **Grid PNG 미생성 시 작업 미완료로 간주**
+
 ### 적용 규칙
 
 - 자가 검증 `❌ 문제` → **다음 단계 진행 중단**, 원인 분석 후 사용자 에스컬레이션

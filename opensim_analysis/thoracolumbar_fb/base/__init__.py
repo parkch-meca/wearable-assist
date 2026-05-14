@@ -4,7 +4,7 @@ base/ — Common infrastructure for all Moco tasks.
 Week 1-2 modules (Step 2 integrated system):
     model_setup.py      — ModelProcessor (Dembia 2020 + Hicks 2015 standard)
     suit_torque_module  — SuitConfig unit safety (Week 1.2)
-    moco_track_setup    — MocoTrack common setup (Week 1.3 planned)
+    moco_track_setup    — MocoTrack common setup (Week 1.3, John 2022 verified)
     contact_model       — SmoothSphereHalfSpaceForce (Week 1.4 planned)
 """
 
@@ -37,6 +37,19 @@ from .suit_torque_module import (
     PHASE1A_TORQUE_NM,
 )
 
+from .moco_track_setup import (
+    setup_moco_track,
+    get_solver_summary,
+    verify_john2022_compatibility,
+    setup_for_stoop_task,
+    setup_for_box_task,
+    setup_for_squat_task,
+    DEFAULT_MESH_INTERVAL,
+    DEFAULT_TRACKING_WEIGHT,
+    DEFAULT_EFFORT_WEIGHT,
+    DEFAULT_CONVERGENCE_TOL,
+)
+
 __all__ = [
     # model_setup
     'build_model_processor',
@@ -63,4 +76,15 @@ __all__ = [
     'PHASE1A_FORCE_N',
     'PHASE1A_MOMENT_ARM',
     'PHASE1A_TORQUE_NM',
+    # moco_track_setup
+    'setup_moco_track',
+    'get_solver_summary',
+    'verify_john2022_compatibility',
+    'setup_for_stoop_task',
+    'setup_for_box_task',
+    'setup_for_squat_task',
+    'DEFAULT_MESH_INTERVAL',
+    'DEFAULT_TRACKING_WEIGHT',
+    'DEFAULT_EFFORT_WEIGHT',
+    'DEFAULT_CONVERGENCE_TOL',
 ]
