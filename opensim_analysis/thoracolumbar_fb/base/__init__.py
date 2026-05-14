@@ -53,6 +53,8 @@ from .moco_track_setup import (
 from .contact_model import (
     add_foot_contact_model,
     add_hand_external_force,
+    add_hand_external_force_xml,
+    generate_box_force_sto,
     setup_box_lifting_contact,
     count_contact_geometry,
     count_contact_forces,
@@ -101,6 +103,8 @@ __all__ = [
     # contact_model
     'add_foot_contact_model',
     'add_hand_external_force',
+    'add_hand_external_force_xml',
+    'generate_box_force_sto',
     'setup_box_lifting_contact',
     'count_contact_geometry',
     'count_contact_forces',
