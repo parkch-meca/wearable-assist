@@ -5,7 +5,7 @@ Week 1-2 modules (Step 2 integrated system):
     model_setup.py      — ModelProcessor (Dembia 2020 + Hicks 2015 standard)
     suit_torque_module  — SuitConfig unit safety (Week 1.2)
     moco_track_setup    — MocoTrack common setup (Week 1.3, John 2022 verified)
-    contact_model       — SmoothSphereHalfSpaceForce (Week 1.4 planned)
+    contact_model       — SmoothSphereHalfSpaceForce (Week 1.4, Falisse 2019)
 """
 
 from .model_setup import (
@@ -50,6 +50,17 @@ from .moco_track_setup import (
     DEFAULT_CONVERGENCE_TOL,
 )
 
+from .contact_model import (
+    add_foot_contact_model,
+    add_hand_external_force,
+    setup_box_lifting_contact,
+    count_contact_geometry,
+    count_contact_forces,
+    verify_falisse2019_compatibility,
+    CONTACT_SPHERES,
+    CONTACT_PARAMS,
+)
+
 __all__ = [
     # model_setup
     'build_model_processor',
@@ -87,4 +98,13 @@ __all__ = [
     'DEFAULT_TRACKING_WEIGHT',
     'DEFAULT_EFFORT_WEIGHT',
     'DEFAULT_CONVERGENCE_TOL',
+    # contact_model
+    'add_foot_contact_model',
+    'add_hand_external_force',
+    'setup_box_lifting_contact',
+    'count_contact_geometry',
+    'count_contact_forces',
+    'verify_falisse2019_compatibility',
+    'CONTACT_SPHERES',
+    'CONTACT_PARAMS',
 ]
