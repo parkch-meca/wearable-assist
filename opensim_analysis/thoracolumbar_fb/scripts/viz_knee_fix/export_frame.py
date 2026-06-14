@@ -7,7 +7,7 @@ ACT_OFF="/data/stoop_results/stoop_v5/so_v5_StaticOptimization_activation.sto"
 ACT_ON ="/data/stoop_results/suit_sweep_v5/F200/suit_v5_F200_StaticOptimization_activation.sto"
 
 TIMES=[float(x) for x in sys.argv[1:]] or [2.5]
-OUTDIR="/tmp/cmp_render/frames"; os.makedirs(OUTDIR,exist_ok=True)
+OUTDIR=os.environ.get("VFRAMES_OUT","/tmp/cmp_render/frames"); os.makedirs(OUTDIR,exist_ok=True)
 
 SPINE=['il_','iliocost','longissi','ltpl','ltpt','long_col','mf_','multifidus','deepmult','supmult','ql_','ps_','semi','splen']
 def is_spine(n):
