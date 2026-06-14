@@ -6,7 +6,7 @@ OSIM="/tmp/cmp_render/tlfb/TLFB.osim"
 OUT="/tmp/cmp_render/public"; os.makedirs(OUT,exist_ok=True)
 RAD=0.006
 D=json.load(open(FRAME))
-VMAX=0.30  # working ES range
+VMAX=0.28  # working ES range
 # green -> yellow -> orange -> red (편함 -> 힘듦)
 GYR=[(0.00,0.10,0.66,0.18),(0.40,0.55,0.80,0.10),(0.58,0.96,0.86,0.10),(0.78,0.97,0.45,0.05),(1.00,0.88,0.04,0.04)]
 def gyr(x):
@@ -17,7 +17,7 @@ def gyr(x):
             f=(x-t0)/(t1-t0) if t1>t0 else 0
             return (r0+(r1-r0)*f,g0+(g1-g0)*f,b0+(b1-b0)*f)
     return GYR[-1][1:]
-AMIN=0.10  # 대비 강화: 작동 ES 범위로 정규화 (수치 왜곡 아님)
+AMIN=0.13  # 대비 강화: 작동 ES 범위로 정규화 (수치 왜곡 아님)
 def actcolor(a):
     n=max(0.,min(1.,(a-AMIN)/(VMAX-AMIN))); return gyr(n), n
 def mat_from(R,p):
