@@ -17,8 +17,9 @@ def gyr(x):
             f=(x-t0)/(t1-t0) if t1>t0 else 0
             return (r0+(r1-r0)*f,g0+(g1-g0)*f,b0+(b1-b0)*f)
     return GYR[-1][1:]
+AMIN=0.10  # 대비 강화: 작동 ES 범위로 정규화 (수치 왜곡 아님)
 def actcolor(a):
-    n=max(0.,min(1.,a/VMAX)); return gyr(n), n
+    n=max(0.,min(1.,(a-AMIN)/(VMAX-AMIN))); return gyr(n), n
 def mat_from(R,p):
     return mathutils.Matrix(((R[0],R[1],R[2],p[0]),(R[3],R[4],R[5],p[1]),(R[6],R[7],R[8],p[2]),(0,0,0,1)))
 def look_at(cl,t):
@@ -99,7 +100,7 @@ for loc,en in [((cx+2,cy+2,cz+3),5.0),((cx-2,cy+1,cz+3),4.0),((cx,cy-1,cz-3),2.8
 bpy.ops.object.camera_add(location=(0,0,0)); cam=bpy.context.object; sc.camera=cam
 cam.data.type='ORTHO'; cam.data.ortho_scale=ortho; cam.data.sensor_fit='VERTICAL'
 cam.data.clip_start=0.01; cam.data.clip_end=60
-VIEWS={"side":(cx,cy,cz+5),"back":(cx-5,cy,cz)}
+VIEWS={"side":(cx,cy,cz+5)}
 for cond in ['off','on']:
     recolor(cond)
     for vn,loc in VIEWS.items():
