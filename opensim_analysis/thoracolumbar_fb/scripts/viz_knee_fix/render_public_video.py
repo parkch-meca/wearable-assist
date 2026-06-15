@@ -7,7 +7,7 @@ OUT=argv[1] if len(argv)>1 else "/tmp/cmp_render/pub_vout"
 os.makedirs(OUT,exist_ok=True)
 OSIM="/tmp/cmp_render/tlfb/TLFB.osim"
 RAD=0.006; PX,PY=720,940
-VMAX=0.32; AMIN=0.10
+VMAX=0.28; AMIN=0.13
 GYR=[(0.00,0.10,0.66,0.18),(0.40,0.55,0.80,0.10),(0.58,0.96,0.86,0.10),(0.78,0.97,0.45,0.05),(1.00,0.88,0.04,0.04)]
 def gyr(x):
     x=max(0.,min(1.,x))
@@ -73,10 +73,10 @@ for fr in frames:
     for mxf in fr['mesh'].values():
         p=mxf['p']
         for i in range(3): mn[i]=min(mn[i],p[i]); mx[i]=max(mx[i],p[i])
-for i in range(3): mn[i]-=0.25; mx[i]+=0.25
+for i in range(3): mn[i]-=0.10; mx[i]+=0.10
 cx=(mn[0]+mx[0])/2; cy=(mn[1]+mx[1])/2; cz=(mn[2]+mx[2])/2
 xext=mx[0]-mn[0]; yext=mx[1]-mn[1]
-ortho=max(yext, xext*PY/PX)*1.05
+ortho=max(yext, xext*PY/PX)*1.02
 sc=bpy.context.scene
 sc.render.engine='BLENDER_EEVEE_NEXT'; sc.render.resolution_x=PX; sc.render.resolution_y=PY
 sc.render.image_settings.file_format='PNG'; sc.world.use_nodes=True
