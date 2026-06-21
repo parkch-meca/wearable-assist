@@ -65,8 +65,9 @@ for fi in range(N):
     d.rectangle([lx,ly,lx+lw,ly+lh],outline=(200,200,200))
     d.text((lx,ly+lh+4),"편함",fill=(110,225,135),font=F(18,True)); d.text((lx+lw-48,ly+lh+4),"힘듦",fill=(255,105,85),font=F(18,True))
     mx=lx+lw+56
-    d.text((mx,ly-16),"슈트 착용 시 허리 근육 부담", fill=(235,235,235), font=F(23,True))
-    d.text((mx,ly+22),f"↓ {red:.0f}% 감소", fill=(120,235,150), font=F(44,True))
+    d.text((mx,ly-26),"슈트 착용 → 허리 근육 부담 감소", fill=(235,235,235), font=F(20,True))
+    d.text((mx,ly+2),"최대 47%↓ · 부담 정점 37%↓", fill=(120,235,150), font=F(29,True))
+    d.text((mx,ly+42),f"지금 {red:.0f}%   (최대=가장 깊이 앉음 · 정점=허리 힘 최대)", fill=(190,195,205), font=F(13))
     py=H-18; d.rectangle([PAD,py,W-PAD,py+8],outline=(90,90,95))
     d.rectangle([PAD,py,PAD+int((W-2*PAD)*fi/max(1,N-1)),py+8],fill=(120,200,140))
     cv.save(os.path.join(COMP,f"v{fi:04d}.png"))
