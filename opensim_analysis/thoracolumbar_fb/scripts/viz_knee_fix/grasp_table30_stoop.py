@@ -91,12 +91,19 @@ def aobj(y):
     setc(p); realize()
     pe=np.linalg.norm(fp(PFR['midmc'])-palmT); te=np.linalg.norm(fp(PFR['midtip'])-tipT); pn=palmR()
     hh=np.array([fp(pf) for pf in hfR]); pen=((hh[:,0]>BCX-HALF)&(hh[:,0]<BCX+HALF)&(np.abs(hh[:,2])<HALF-0.005)&(hh[:,1]>TOPb)&(hh[:,1]<TOPb+BOX)).sum()
-    return pe*2+te*2+1.0*(1+pn[2])+0.03*pen
+    # ELBOW down by the body (kill akimbo): elbow well BELOW shoulder + not flared far lateral.
+    # A slight outward angle is natural for gripping a box's two side faces.
+    elb=Jt('elbow'); sh=Bd('humerus_R')
+    elbow_high=max(0,elb[1]-(sh[1]-0.16))      # elbow >=16cm below shoulder (hangs down, not raised wing)
+    elbow_out=max(0,elb[2]-(sh[2]+0.03))       # elbow only mildly beyond shoulder z (small natural flare ok)
+    return pe*2+te*2+1.0*(1+pn[2])+0.03*pen+3.5*elbow_high+3.5*elbow_out
 ab=None
-for s_ in range(40):
-    rr=minimize(aobj,alb+(aub-alb)*np.random.RandomState(s_).rand(len(RC)),method='Nelder-Mead',options={'maxiter':2500})
+for s_ in range(48):
+    rr=minimize(aobj,alb+(aub-alb)*np.random.RandomState(s_).rand(len(RC)),method='Nelder-Mead',options={'maxiter':2600})
     if ab is None or rr.fun<ab.fun: ab=rr
 for k,v in zip(RC,np.clip(ab.x,alb,aub)): pose[k]=float(v)
+_elb=Jt('elbow'); _sh=Bd('humerus_R')
+print(f"  ELBOW y-belowShoulder={( _sh[1]-_elb[1])*100:.0f}cm  z-vsShoulder={(_elb[2]-_sh[2])*100:+.0f}cm (want down & not +lateral)")
 pose['clav_prot_l']=-pose.get('clav_prot_r',0.0); pose['clav_elev_l']=pose.get('clav_elev_r',0.0)
 setc(pose); realize()
 cl_r=Bd('clavicle_R'); cl_l=Bd('clavicle_L')
