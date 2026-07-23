@@ -65,12 +65,14 @@ print(f"CARRY hand_err={np.linalg.norm(fpp(PFR['midmc'])-carry_hand)*100:.1f}cm 
 FPS=30; T=6.0; n=int(T*FPS)+1; ts=np.linspace(0,T,n)
 def sm(a): return a*a*(3-2*a)
 def kp(t):
-    if t<0.5: return P_stand
-    if t<2.0: a=sm((t-0.5)/1.5); return {c:(1-a)*P_stand[c]+a*P_grasp[c] for c in coords}   # reach+grasp
-    if t<2.4: return P_grasp                                                                  # grasp hold
-    if t<4.0: a=sm((t-2.4)/1.6); return {c:(1-a)*P_grasp[c]+a*P_carry[c] for c in coords}      # STAND UP: box tracks hands table->waist (continuous lift)
-    if t<4.6: return P_carry                                                                   # carry hold
-    if t<6.0: a=sm((t-4.6)/1.4); return {c:(1-a)*P_carry[c]+a*P_stand[c] for c in coords}       # return
+    # full cycle: stand -> reach+grasp -> lift to carry -> carry hold -> lower box back -> release+stand
+    if t<0.4: return P_stand
+    if t<1.9: a=sm((t-0.4)/1.5); return {c:(1-a)*P_stand[c]+a*P_grasp[c] for c in coords}   # reach to box(on table)
+    if t<2.3: return P_grasp                                                                  # grasp hold
+    if t<3.5: a=sm((t-2.3)/1.2); return {c:(1-a)*P_grasp[c]+a*P_carry[c] for c in coords}      # stand up, box rises to waist
+    if t<4.3: return P_carry                                                                   # carry hold
+    if t<5.5: a=sm((t-4.3)/1.2); return {c:(1-a)*P_carry[c]+a*P_grasp[c] for c in coords}       # lower box back to table
+    if t<6.0: a=sm((t-5.5)/0.5); return {c:(1-a)*P_grasp[c]+a*P_stand[c] for c in coords}       # release + stand up
     return P_stand
 rows=[]
 for t in ts:
