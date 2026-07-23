@@ -29,7 +29,7 @@ def side_of(fr):
     if any(x in f for x in ('humerus_l','ulna_l','radius_l','hand_l')): return 'L'
     return 'other'
 tbl=osim.TimeSeriesTable(MOT); times=list(tbl.getIndependentColumn()); labels=list(tbl.getColumnLabels())
-GRIP_START,GRIP_END=1.9,5.5   # box attached to hands only while gripped (matches motion kp)
+GRIP_START,GRIP_END=1.9,6.0   # box attached to hands only while gripped (matches motion kp)
 def set_pose(row):
     for j,lab in enumerate(labels):
         if lab in coords: c=cs.get(lab); c.setValue(state,(np.deg2rad(row[j]) if c.getMotionType()!=2 else row[j]),False)

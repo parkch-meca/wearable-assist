@@ -10,9 +10,9 @@ MODEL_BASE='/data/opensim_models/ThoracolumbarFB/Fullbody_TLModels_v2.0_OS4x/Mal
 MOT_SRC='/data/stoop_motion/box_stoop_lift_m1.mot'
 OUT=Path('/data/stoop_results/box_stoop_so'); OUT.mkdir(parents=True,exist_ok=True)
 MODEL_RES=OUT/'model_with_reserves_m1.osim'
-T_START,T_END=0.0,6.0
+T_START,T_END=0.0,7.5
 BOX_KG=20.0; G=9.81; BOX_FORCE_PER_HAND=BOX_KG*G/2.0   # 98.1 N
-GRIP_START,GRIP_END=1.9,5.5
+GRIP_START,GRIP_END=1.9,6.0
 SUIT_ON_NM=24.0
 CONDITIONS={'B_noload':dict(box=False,suit=0.0),'B_off':dict(box=True,suit=0.0),'B_on':dict(box=True,suit=SUIT_ON_NM)}
 
