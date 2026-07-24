@@ -27,6 +27,7 @@ FLOOR=-0.905; EDGE=0.18; TABLE_H=0.30; TOPb=FLOOR+TABLE_H; BOX=0.30; HALF=BOX/2
 GRIP_START,GRIP_END=1.9,6.0
 ES_CMAP=LinearSegmentedColormap.from_list('es',[(0,'#909090'),(0.25,'#FFB300'),(0.5,'#FF6600'),(0.75,'#CC2200'),(1,'#8B0000')],N=256)
 ES_CLIM=0.45   # color ceiling (ES peak ~37% at load -> good spread)
+CAM=[(2.2,0.0,3.0),(0.12,-0.02,0.0),(0.0,1.0,0.0)]   # default 3-quarter; front view = [(3.2,0.0,0.0),(0.12,-0.02,0),(0,1,0)]
 def is_es(n): return n.startswith(('IL_','LTpT_','LTpL_'))
 # ---- model / motion / SO ----
 def transform_mat4(T):
@@ -94,17 +95,26 @@ def render_3d(model,state,meshes,acts_off,acts_on,box_c,out_png):
         if mi['frame'] not in fc:
             try: fc[mi['frame']]=model.getComponent(mi['frame'])
             except Exception: pass
-    cam=[(2.2,0.0,3.0),(0.12,-0.02,0.0),(0.0,1.0,0.0)]   # focal centered for full standing height
+    cam=CAM   # 3-quarter (default) or front (verification), module-level so it can be overridden
+    def arm_side(fp):
+        if any(k in fp for k in ('humerus_R','ulna_R','radius_R','hand_R')): return 'R'
+        if any(k in fp for k in ('humerus_L','ulna_L','radius_L','hand_L')): return 'L'
+        return None
     for col,(acts,lab) in enumerate([(acts_off,'OFF'),(acts_on,'ON')]):
         pl.subplot(0,col)
         for mi in meshes:
             if mi['frame'] not in fc: continue
+            sd=arm_side(mi['frame'])
+            if sd=='L': continue   # VIZ-MIRROR: model left arm is a defective right-copy -> skip, draw z-mirror of right instead
             try: surf=pv.read(mi['path'])
             except Exception: continue
             sx,sy,sz=mi['scale']
             if (sx,sy,sz)!=(1,1,1): surf=surf.scale([sx,sy,sz],inplace=False)
             surf=surf.transform(transform_mat4(fc[mi['frame']].getTransformInGround(state)),inplace=False)
             pl.add_mesh(surf,color='#E8E0D0',opacity=0.96,smooth_shading=True,specular=0.3,specular_power=15)
+            if sd=='R':   # draw z=0 mirror of right arm as the left arm (correct bilateral grip)
+                mir=surf.reflect((0,0,1),point=(0,0,0))
+                pl.add_mesh(mir,color='#E8E0D0',opacity=0.96,smooth_shading=True,specular=0.3,specular_power=15,culling=False)
         pd=muscle_pd(model,state,acts)
         if pd is not None: pl.add_mesh(pd,scalars='a',cmap=ES_CMAP,clim=[0,ES_CLIM],line_width=5.0,show_scalar_bar=False)
         # floor + table (blue) + box (orange)
@@ -180,7 +190,10 @@ def render_frame(t,out_png,ctx,pfx='f'):
         except OSError: pass
     return eo,en
 def setup():
-    model=osim.Model(MODEL); state=model.initSystem(); meshes=collect_meshes(model)
+    model=osim.Model(MODEL); state=model.initSystem()
+    for n in ('pro_sup_r','wrist_flex_r','wrist_dev_r'):   # unlock right wrist so .mot palm orientation applies (mirrored to left)
+        if model.getCoordinateSet().contains(n): model.getCoordinateSet().get(n).setLocked(state,False)
+    model.assemble(state); meshes=collect_meshes(model)
     mot=osim.TimeSeriesTable(MOT); to,lo,do=load_so(SO_OFF); tn,ln,dn=load_so(SO_ON)
     # box table position = box at grasp moment
     apply_motion(model,state,mot,GRIP_START); box_table=box_center(hand_pos(model,state),GRIP_START,[EDGE+0.16,TOPb+HALF,0])
