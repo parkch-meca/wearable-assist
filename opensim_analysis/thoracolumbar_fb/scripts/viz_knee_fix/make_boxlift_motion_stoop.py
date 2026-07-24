@@ -75,8 +75,19 @@ def kp(t):
     if t<7.5: a=sm((t-6.0)/1.5); return {c:(1-a)*P_grasp[c]+a*P_stand[c] for c in coords}       # release + stand (1.5s, = descent, no spike)
     return P_stand
 rows=[]
+# wrist orientation gate: neutral during approach/departure, grasp orientation only while gripping
+# (avoids the unnatural wrist roll when interpolating wrist_flex/dev from 0 on a swinging arm)
+WRIST=[c for c in ['pro_sup_r','wrist_flex_r','wrist_dev_r','pro_sup_l','wrist_flex_l','wrist_dev_l'] if c in coords]
+def wrist_alpha(t):
+    if t<1.4: return 0.0
+    if t<1.9: return sm((t-1.4)/0.5)     # orient wrist as hand nears box
+    if t<6.0: return 1.0                  # gripping
+    if t<6.5: return sm((6.5-t)/0.5)      # release -> neutral
+    return 0.0
 for t in ts:
     pose=dict(kp(t)); pose['pelvis_tx']=0; pose['pelvis_ty']=0
+    wa=wrist_alpha(t)
+    for w in WRIST: pose[w]=P_grasp.get(w,0.0)*wa   # gate wrist to grasp orientation only while gripping
     setc(pose); m.assemble(state); m.realizePosition(state)
     pose['pelvis_ty']=FLOOR-lowest_foot()
     setc(pose); m.assemble(state); m.realizePosition(state)

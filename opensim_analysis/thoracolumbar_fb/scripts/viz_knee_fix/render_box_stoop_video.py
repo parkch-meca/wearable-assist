@@ -96,9 +96,9 @@ def render_3d(model,state,meshes,acts_off,acts_on,box_c,out_png):
             try: fc[mi['frame']]=model.getComponent(mi['frame'])
             except Exception: pass
     cam=CAM   # 3-quarter (default) or front (verification), module-level so it can be overridden
-    def arm_side(fp):
-        if any(k in fp for k in ('humerus_R','ulna_R','radius_R','hand_R')): return 'R'
-        if any(k in fp for k in ('humerus_L','ulna_L','radius_L','hand_L')): return 'L'
+    def arm_side(fp):   # full shoulder girdle + arm, so left is a perfect z-mirror of right
+        if any(k in fp for k in ('clavicle_R','scapula_R','humerus_R','ulna_R','radius_R','hand_R')): return 'R'
+        if any(k in fp for k in ('clavicle_L','scapula_L','humerus_L','ulna_L','radius_L','hand_L')): return 'L'
         return None
     for col,(acts,lab) in enumerate([(acts_off,'OFF'),(acts_on,'ON')]):
         pl.subplot(0,col)
