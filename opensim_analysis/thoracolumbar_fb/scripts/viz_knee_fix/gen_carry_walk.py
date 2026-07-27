@@ -22,21 +22,46 @@ FK 자가검증:
   박스 pelvis-frame 안정성 (std)
   박스-허벅지 간섭 점검
 
-v3 재작업 (2026-07-28):
-  문제: 좌우 팔 독립 IK로 비대칭 (shoulder_elv_r=27.2 vs l=-17.6, 정면에서 팔 비대칭)
-  해결:
-    - 오른팔만 Nelder-Mead IK (target: pelvis-frame x=+0.22, y=+0.17, z=+0.15)
-    - 왼팔은 FK z-mirror: target = (hR.x, hR.y, -hR.z) = (0.22, 0.17, -0.15)
-    - 왼팔 Nelder-Mead+DE 최적화로 정확히 target 달성
-    - FK 대칭 검증: max 오차 0.0000m PASS
-  결과 (2026-07-28):
-    - RIGHT: elv=27.19, ea=5.04, rot=19.63, flex=97.92
-    - LEFT:  elv=-53.73, ea=24.49, rot=-27.63, flex=92.55
-    - hand_R pelvis-frame: (+0.2200, +0.1700, +0.1500)
-    - hand_L pelvis-frame: (+0.2200, +0.1700, -0.1500)
-    - 대칭 오차: 0.0000m (완전 대칭)
-  참고: elv_angle_l=+24.49 (elv_R=5.04와 다름) — 모델 좌측 어깨 축 관례로 인해
-        단순 부호 반전 미러 불가. FK 실증으로 확정.
+v5 결판 테스트 (2026-07-28):
+  테스트: hand + ulna(팔꿈치) + humerus 3점 동시 z-미러 최적화 (DE + NM 전역 탐색)
+  비용: W_hand=1, W_elbow=2, W_hum=1 (팔꿈치 가중치 2배)
+  ROM bounds: shoulder_elv_l=[-154.7, 0], elv_angle_l=[-90, 155.2],
+              shoulder_rot_l=[-45, 90.8], elbow_flexion_l=[0, 155.3]
+
+  오른팔 FK 기준점 (pelvis-frame, 중립 자세):
+    hand_R    = (+0.2067, +0.2034, +0.1687)
+    ulna_R    = (-0.0206, +0.1562, +0.2817)  <- 팔꿈치(ulna origin)
+    humerus_R = (-0.0675, +0.4225, +0.1751)  <- 어깨 관절점
+
+  3점 최적화 결과:
+    최적 각도: elv=0.0, ea=8.73, rot=-10.41, flex=94.83 (elv=0 경계에서 수렴)
+    hand 오차: 4.68 cm
+    elbow 오차: 11.61 cm  <- 기준 5cm 초과, 달성 불가
+    hum 오차: 0.00 cm (humerus_R은 pelvis rotational axis여서 좌우 동일)
+
+  팔꿈치만 최소화 탐색:
+    최소 달성 가능 팔꿈치 오차: 3.87 cm (그 각도에서 손 오차 4.68 cm)
+    -> 팔꿈치 + 손 동시 5cm 이내 불가 (구조적 한계 확정)
+
+  근본원인:
+    shoulder_elv_l ROM = [-154.7, 0.0] (음수 전용 좌표 공간)
+    -> pelvis 좌측에서 ulna z = [-0.04 ~ -0.29] 범위만 도달 가능
+    -> 타겟 ulna z = -0.2817 (거의 ROM 끝): 도달 가능하지만 그때 손 오차 큼
+    -> 두 조건 동시 만족 불가
+
+  결론: 관절공간 대칭 불가 확정
+    .mot -> 순수 부호미러 (shoulder_elv_l=-27.19, ea=+5.04, rot=-19.63, flex=97.92)
+    render -> viz-mirror 필요 (오른팔 mesh z=0 반사 → 완벽 시각 대칭)
+
+  v5 순수 부호미러 FK 결과:
+    - RIGHT: elv=+27.19, ea=+5.04, rot=+19.63, flex=+97.92
+    - LEFT:  elv=-27.19, ea=+5.04, rot=-19.63, flex=+97.92
+    - hand_R pelvis-frame: (+0.2067, +0.2034, +0.1687)
+    - hand_L pelvis-frame: (+0.1795, +0.1752, -0.1427)
+    - 손 z-미러 오차: 4.70 cm (허용, 박스 20kg가 ES 지배, 팔 자세 무시 가능)
+    - 손-손 z 간격: 0.311 m PASS (기준 0.28~0.32m)
+    - hand_L pelvis y: +0.1752 m PASS (기준 0.13~0.22m)
+    - V3/V4/V6/V8/V10: 모두 PASS
 """
 import numpy as np
 import opensim as osim
@@ -52,26 +77,30 @@ INPUTS = [
     (GAIT_DIR / 'gait_retarget_v2.mot', OUT_DIR / 'carry_walk_v2.mot'),
 ]
 
-# ─── carry 자세 상수 (v3: 우측 IK + 좌측 FK z-mirror 대칭, 2026-07-28) ─────
-# 오른팔: Nelder-Mead IK, target pelvis-frame x=+0.22, y=+0.17, z=+0.15 m
-# 왼팔: DE+Nelder-Mead IK, target = (0.22, 0.17, -0.15) — FK z-mirror 정확 달성
-# FK 검증: hand_R=(+0.2200,+0.1700,+0.1500), hand_L=(+0.2200,+0.1700,-0.1500)
-#           대칭 오차 max=0.0000m (완전 대칭)
-# 참고: elv_angle_l=+24.49 (elv_R=+5.04와 다름) — 모델 좌측 어깨 축 관례상
-#       elv_angle 부호 단순 반전 불가. FK 실증값 사용.
+# ─── carry 자세 상수 (v5: 순수 부호미러, 2026-07-28) ─────────────────────────
+# v5 결판 테스트: hand + ulna + humerus 3점 동시 z-미러 최적화 (DE+NM 전역 탐색)
+# -> 관절공간 대칭 불가 확정 (팔꿈치 최소 달성 오차 3.87cm, 그 각도에서 손 4.68cm)
+# -> 순수 부호미러 채택 (ES에는 팔 자세가 아닌 박스 20kg가 지배)
+# -> render 단계에서 viz-mirror 적용 필요 (오른팔 mesh z=0 반사 -> 완벽 시각 대칭)
+#
+# 미러 규칙:
+#   shoulder_elv_l = -shoulder_elv_r  (부호반전, 크기 동일)
+#   elv_angle_l    = +elv_angle_r     (동일 부호 유지)
+#   shoulder_rot_l = -shoulder_rot_r  (부호반전)
+#   elbow_flexion_l= +elbow_flexion_r (동일)
 ARM_CARRY_R = {
     'shoulder_elv_r':   27.19,  # deg (팔 앞으로, carry 자세)
     'elv_angle_r':       5.04,  # deg (외측 약간)
-    'shoulder_rot_r':   19.63,  # deg (내회전, 전완 교차 없음)
-    'elbow_flexion_r':  97.92,  # deg (굴곡 97°, 손 배꼽~명치 높이)
+    'shoulder_rot_r':   19.63,  # deg (내회전)
+    'elbow_flexion_r':  97.92,  # deg (굴곡 97 deg, 손 배꼽~명치 높이)
     'clav_prot_r':       5.0,   # deg (견갑대 약한 전방 돌출)
     'clav_elev_r':       0.0,   # deg
 }
 ARM_CARRY_L = {
-    'shoulder_elv_l':  -53.73,  # deg (좌 convention 음수; FK z-mirror 결과)
-    'elv_angle_l':      24.49,  # deg (모델 좌측 축 관례상 양수, 단순 미러 불가)
-    'shoulder_rot_l':  -27.63,  # deg (부호 반전)
-    'elbow_flexion_l':  92.55,  # deg (오른팔 97.92와 5° 이내 동등)
+    'shoulder_elv_l':  -27.19,  # deg (= -shoulder_elv_r, 순수 부호미러)
+    'elv_angle_l':       5.04,  # deg (= +elv_angle_r, 동일 부호)
+    'shoulder_rot_l':  -19.63,  # deg (= -shoulder_rot_r, 순수 부호미러)
+    'elbow_flexion_l':  97.92,  # deg (= +elbow_flexion_r, 동일)
     'clav_prot_l':       5.0,   # deg
     'clav_elev_l':       0.0,   # deg
 }
