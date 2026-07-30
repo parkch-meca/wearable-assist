@@ -254,6 +254,7 @@ A가 가장 일관적.
 
 ### 문헌 참고 (어제 사전 조사)
 - Frontiers 2026 (active exoskeleton, 15kg lift, ES 10-27% MVC): https://www.frontiersin.org/articles/10.3389/fbioe.2026.1631785
+  - ⚠ **10-27 %는 %MVC 절대 포인트**(상대 감소율 아님). stoop 69.8→42.4 %MVC = 상대 −39.3 %, squat은 수준 간 유의차 미보고. (2026-07-30 원문 재확인)
 - PLAD (Sadler et al., 2006, 5/15/25kg, ES EMG 감소 14.4-27.6%): https://pubmed.ncbi.nlm.nih.gov/16494978/
 - 이외 어제 web_search 결과 기록됨
 

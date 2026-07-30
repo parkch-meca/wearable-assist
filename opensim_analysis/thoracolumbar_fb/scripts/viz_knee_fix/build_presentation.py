@@ -832,8 +832,10 @@ para(wf, '표준 설정에서는 reserve가 척추 부하를 대신 흡수하여
 para(wf, '※ 위 값은 보행 전주기 기준. 구간별로는 +0.9 ~ +4.3 %p까지 부호가 갈리며(S21), '
          '어느 쪽이든 크기는 들기 동작(23~47 %)에 비해 무시할 수준.',
      size=14.5, color=GRAY, space_after=6)
-rich(wf, [('→  저부하 동작일수록 reserve 설정에 민감. 전 동작에 tight 설정 적용.',
-           True, RED, 17)], space_after=0)
+rich(wf, [('→  저부하 동작일수록 reserve 설정에 민감.', True, RED, 17)], space_after=4)
+para(wf, '※ tight 설정은 이 문제를 발견한 뒤 해석한 보행·운반에 적용. 스쿼트·스툽·박스 들기는 '
+         '표준 설정으로 해석되어 절대 활성도의 동작 간 직접 비교는 제한됨(한계에 명시).',
+     size=13.5, color=GRAY, space_after=0)
 notes(s, '방법론적으로 가장 중요한 발견 중 하나입니다. 저부하 조건에서 '
          'reserve를 점검하지 않으면 잘못된 결론에 도달할 수 있습니다.')
 
@@ -1014,13 +1016,15 @@ notes(s, 'S7의 상시 구동 효율성과 연결되는 결론입니다. 상시 
          '보행을 방해하지 않으므로, 켜고 끄는 제어 없이 운용할 수 있습니다.')
 
 # ============================================================ S29 고찰 3 문헌
-s = slide('고찰 ③ — 문헌 대조를 통한 검증')
-hdr = ['비교 조건', '본 연구 (시뮬레이션 ES)', '선행 연구 (실측 EMG, %MVC)', '정합 여부']
-rows = [('스툽 / 들기 / 나르기', '23 ~ 32 %', '10 ~ 27 %  (stoop, 능동 exo)',
-         '정합 (상단)', GREEN),
-        ('스쿼트', '37 ~ 47 %', '10 ~ 17 %  (squat, 능동 exo)',
-         '초과 — 아래 주석', RED)]
-cw4 = [3.15, 2.85, 4.35, 2.20]
+# 2026-07-30 전면 재작성: 이전 버전은 선행 연구의 %MVC 절대 포인트를
+# 상대 감소율로 오독하여 "본 연구 스쿼트가 선행 범위 초과"라고 서술했음.
+s = slide('고찰 ③ — 선행 연구 대조: 본 연구는 보수적 추정')
+hdr = ['비교 조건', '본 연구 (ES peak 상대 감소율)', '선행 연구 (실측 EMG)', '대조 결과']
+rows = [('맨몸 스툽', '28 ~ 32 % ↓',
+         '69.8 → 42.4 %MVC\n= 상대 39.3 % ↓', '본 연구가 더 보수적', GREEN),
+        ('맨몸 스쿼트', '37 ~ 47 % ↓',
+         '보조 수준 간\n유의차 미보고', '대조 불가', GRAY)]
+cw4 = [3.15, 3.35, 3.85, 2.20]
 x0 = CX - sum(cw4) / 2
 ty = 1.78
 for i, hcol in enumerate(hdr):
@@ -1031,29 +1035,32 @@ for i, hcol in enumerate(hdr):
 ty += 0.76
 for r in rows:
     for i, cell in enumerate(r[:4]):
-        _, cf2 = rect(s, x0 + sum(cw4[:i]), ty, cw4[i] - 0.06, 0.78,
-                      fill=BOXBG if i < 3 else (BOXBG2 if r[4] == GREEN else BOXBG3))
-        para(cf2, cell, size=15 if i != 3 else 14,
-             bold=(i in (1, 3)), color=r[4] if i == 3 else DARK,
-             align=PP_ALIGN.CENTER, first=True, space_after=0)
+        _, cf2 = rect(s, x0 + sum(cw4[:i]), ty, cw4[i] - 0.06, 0.88,
+                      fill=BOXBG if i < 3 else (BOXBG2 if r[4] == GREEN else BOXBG))
+        for j, ln_ in enumerate(cell.split('\n')):
+            para(cf2, ln_, size=14.5 if i != 3 else 13.5,
+                 bold=(i in (1, 3)), color=r[4] if i == 3 else DARK,
+                 align=PP_ALIGN.CENTER, first=(j == 0), space_after=1)
         cf2.vertical_anchor = MSO_ANCHOR.MIDDLE
-    ty += 0.82
-_, nf = rect(s, x0, ty + 0.12, sum(cw4) - 0.06, 1.62, fill=BOXBG)
-para(nf, '해석', size=16, bold=True, color=NAVY, first=True, space_after=7)
-para(nf, '들기·나르기 계열은 독립 수행된 선행 연구 보고 범위 안에 위치 → 슈트 모델링이 '
-         '과대평가되지 않았음을 시사.', size=14.5, color=DARK, space_after=5)
-rich(nf, [('스쿼트는 선행 범위를 초과', True, RED, 14.5),
-          (' — 보조 토크 수준 차이 및 지표 차이(시뮬레이션 근육 활성도 vs 표면 EMG %MVC)로 '
-           '설명 가능하나, 직접 실측 검증이 필요한 항목으로 한계에 명시.',
-           False, DARK, 14.5)], space_after=0)
-_, rf = tb(s, x0, ty + 1.86, sum(cw4), 0.72)
-para(rf, '출처', size=12, bold=True, color=GRAY, first=True, space_after=3)
-para(rf, 'Hasenmaier et al. (2026) Front Bioeng Biotechnol, doi:10.3389/fbioe.2026.1631785   |   '
-         'Hu et al. (2026) Ergonomics, doi:10.1080/00140139.2025.2466030',
+    ty += 0.92
+_, nf = rect(s, x0, ty + 0.12, sum(cw4) - 0.06, 1.50, fill=BOXBG2, line=GREEN)
+para(nf, '해석', size=16, bold=True, color=GREEN, first=True, space_after=6)
+rich(nf, [('직접 대조 가능한 스툽 조건에서 본 연구 감소율이 선행 실측치보다 작음', True, DARK, 14.5),
+          (' → 본 시뮬레이션이 슈트 효과를 과대평가하지 않았음을 시사.', False, DARK, 14.5)],
+     space_after=4)
+rich(nf, [('스쿼트는 대응 선행값이 없어 외부 대조 불가', True, GRAY, 14.5),
+          (' — 5동작 중 감소율이 가장 커 실측 EMG 검증의 최우선 대상.', False, DARK, 14.5)],
+     space_after=0)
+_, rf = tb(s, x0, ty + 1.74, sum(cw4), 0.85)
+para(rf, '출처 (원문 초록 직접 확인)', size=12, bold=True, color=GRAY, first=True, space_after=3)
+para(rf, 'Hasenmaier et al. (2026) Front Bioeng Biotechnol, doi:10.3389/fbioe.2026.1631785 — n=17, Apogee 능동 외골격',
+     size=11.5, color=GRAY, space_after=2)
+para(rf, '※ 원문의 "10–27 % MVC"는 %MVC 절대 포인트이며 상대 감소율이 아님 (환산 시 스툽 −39.3 %)',
      size=11.5, color=GRAY, space_after=0)
-notes(s, '시뮬레이션 결과가 실측 기반 연구와 같은 범위에 있다는 점이 모델 신뢰도의 근거입니다. '
-         '다만 스쿼트는 선행 범위를 넘습니다. 이를 숨기지 않고 표기했고, '
-         '한계 슬라이드에서 다시 다룹니다.')
+notes(s, '이 슬라이드는 2026-07-30에 정정했습니다. 이전 판은 선행 연구의 %MVC 절대 '
+         '포인트를 상대 감소율로 잘못 읽어 "우리 스쿼트가 문헌보다 크다"고 서술했는데, '
+         '원문을 다시 확인하니 스툽 기준으로는 오히려 우리 값이 더 작습니다. '
+         '스쿼트는 원문이 유의차를 보고하지 않아 비교 자체가 불가능합니다.')
 
 # ============================================================ S30 고찰 4
 s = slide('고찰 ④ — 방법론적 시사점')
@@ -1088,17 +1095,19 @@ lim = [('성인 남성 1개 체형 조건',
         '근육 활성 동역학·수축 속도 미반영'),
        ('나르기 조건에서 최대 활성 근육 포화 (100 %)',
         '보고값은 슈트 효과의 하한선'),
-       ('스쿼트 감소율이 선행 EMG 연구 범위를 상회',
-        '지표·보조 토크 차이로 설명되나 직접 실측 검증 필요')]
-ty = 1.66
+       ('스쿼트 조건은 외부 대조가 불가능',
+        '대응 선행 연구가 보조 수준 간 유의차를 보고하지 않음 → 실측 EMG 검증 필요'),
+       ('reserve 설정이 동작군에 따라 혼재',
+        '보행·운반만 tight — 동작 간 절대 활성도 직접 비교는 제한 (효과 방향은 무관하게 유효)')]
+ty = 1.62
 for hd, ds in lim:
-    _, bf2 = rect(s, M, ty, SW - 2 * M, 0.84, fill=BOXBG3)
+    _, bf2 = rect(s, M, ty, SW - 2 * M, 0.76, fill=BOXBG3)
     rich(bf2, [(hd, True, DARK, 15.5)], first=True, space_after=3)
     para(bf2, ds, size=13.5, color=GRAY, space_after=0)
     bf2.vertical_anchor = MSO_ANCHOR.MIDDLE
-    ty += 0.92
+    ty += 0.83
 caption(s, '한계를 명확히 하는 것이 결과의 신뢰도를 오히려 높인다',
-        top=6.38, size=15, color=NAVY, bold=True, h=0.4)
+        top=6.62, size=14, color=NAVY, bold=True, h=0.35)
 notes(s, '한계를 명확히 하는 것이 결과의 신뢰도를 오히려 높입니다. '
          '특히 스쿼트 수치가 문헌보다 큰 점은 질문이 나올 수 있는 부분이라 '
          '먼저 밝혀 두었습니다.')

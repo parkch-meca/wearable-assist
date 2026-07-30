@@ -1,3 +1,7 @@
+# ⛔ 정정 (2026-07-30): 이 스크립트가 그림에 새기는 "문헌 10–17 %(P3)" 대조는 오독이다.
+#    Hasenmaier 2026의 10–27 %는 %MVC 절대 포인트이지 상대 감소율이 아니며,
+#    stoop 상대 감소율은 −39.3 %, squat은 유의차 미보고로 대조 불가.
+#    이 스크립트로 생성된 그림은 논문·발표에 사용 금지. 상세: docs/five_motion_paper_draft.md §4
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
