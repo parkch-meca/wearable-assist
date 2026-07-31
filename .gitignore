@@ -26,3 +26,33 @@ __pycache__/
 
 # Moco external kill-switch file
 delete_this_to_stop_optimization*
+
+# ── 시각화 중간 생성물 (2026-07-31 도입) ────────────────────────────
+# 원칙: grid/합성본·논문 figure만 추적. 개별 프레임은 grid에 포함되므로 제외.
+# ⚠ 기존 추적 파일은 이 패턴에 걸려도 추적이 유지된다(정책 도입 이전 파일).
+
+# 개별 프레임 스냅샷 (*_grid.png 로 합성되어 추적됨)
+opensim_analysis/*/docs/images/**/*_t[0-9]*.png
+opensim_analysis/*/docs/images/**/*_f[0-9]*.png
+opensim_analysis/*/docs/images/**/wt_front_*.png
+opensim_analysis/*/docs/images/**/fix[0-9]*.png
+opensim_analysis/*/docs/images/**/w2_*.png
+opensim_analysis/*/docs/images/**/fk_*.png
+opensim_analysis/*/docs/images/**/boxvid_*.png
+
+# 동작 시도별 진단 plot (stage 산출물 — *_stage?_grid.png 는 예외로 추적)
+opensim_analysis/*/docs/images/**/*_stage[0-9]_traj.png
+opensim_analysis/*/docs/images/**/*_stage[0-9]_joints.png
+opensim_analysis/*/docs/images/**/*_stage[0-9]_hand_box.png
+
+# Blender 저작 파일 — /data/wearable-assist-assets/blender/ 에 보관
+*.blend
+*.blend1
+
+# 백업 파일 — git 이력이 백업 역할
+*.bak
+*.bak_*
+*.backup_*
+
+# 빌드 중간 산출
+.toc_pages.json

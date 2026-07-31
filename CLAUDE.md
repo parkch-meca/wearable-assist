@@ -20,6 +20,22 @@ SMA fabric muscle 기반 wearable suit가 들기 작업 중 척추기립근(erec
 - 대용량 산출물 (`.mot`, `.sto`, `.mp4`, `.osim`, `.pkl`, `.npy`)은 `/data/` 하위 (repo 외부). `.gitignore` 참조.
 - 결과 이미지(`.png`)는 원칙적으로 제외; 단 `opensim_analysis/*/docs/images/` 및 `docs/figures/` 하위는 포함 허용.
 
+### 리포지토리 추적 기준 (2026-07-31 표준)
+
+새 산출물을 만들 때 아래 기준을 적용한다. 상세는 `docs/five_motion_completion_record.md` §9.
+
+| 추적 | 제외 |
+|---|---|
+| grid·합성본 PNG (`*_grid.png`, `*_verify_*`, `*_report`) | 개별 프레임 (`*_t[0-9]*`, `*_f[0-9]*`, `wt_front_*`, `fix[0-9]*`) |
+| 논문 figure (`docs/images/paper_*/fig*.png`) | 시도별 진단 plot (`*_stage[0-9]_traj|joints|hand_box.png`) |
+| 분석 plot (`*_angles.png`, `*_analysis_*.png`) | 렌더 중간 프레임 (`w2_*`, `fk_*`, `boxvid_*`) |
+| 문서·스크립트·소형 설정 | 대용량 저작 파일 (`*.blend`), 백업 (`*.bak*`, `*.backup_*`) |
+
+- **원칙**: 개별 프레임은 grid에 합성되어 추적되므로 중복이다. grid만 남긴다.
+- **대용량 자산**은 리포지토리 밖 `/data/wearable-assist-assets/<종류>/` 에 두고 README로 용도·재생성 가능 여부를 명시한다.
+- **기존 추적 파일은 건드리지 않는다** — 과거 커밋의 raw URL이 채팅 이력에 남아 있어 삭제 시 링크가 깨진다. 새 패턴은 신규 생성분부터 적용.
+- 목표 상태: **미추적 파일 0개** — `git add -A`가 안전해야 한다.
+
 ## Auto-Commit Rules
 
 다음 시점에 자동 `commit` + `push origin main`:
