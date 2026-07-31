@@ -13,7 +13,10 @@ from matplotlib import font_manager as fm
 
 KF = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 fm.fontManager.addfont(KF)
-plt.rcParams['font.family'] = fm.FontProperties(fname=KF).get_name()
+_KFNAME = fm.FontProperties(fname=KF).get_name()
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = [_KFNAME]
+plt.rcParams['mathtext.fontset'] = 'dejavusans'
 plt.rcParams['axes.unicode_minus'] = False
 plt.rcParams.update({'font.size': 9, 'axes.labelsize': 9.5, 'axes.titlesize': 10,
                      'xtick.labelsize': 8.5, 'ytick.labelsize': 8.5,
@@ -124,15 +127,17 @@ json.dump(res, open('/data/tight_unified/gait_redistribution.json', 'w'),
           ensure_ascii=False, indent=1)
 
 # ================= 그림 =================
-fig, axs = plt.subplots(1, 3, figsize=(18 * CM, 6.4 * CM))
+fig, axs = plt.subplots(1, 3, figsize=(16.4 * CM, 6.0 * CM))
 a = axs[0]
 a.plot(T, Ao.max(axis=0), color='0.15', lw=1.6, label='슈트 OFF')
 a.plot(T, An.max(axis=0), color='0.45', lw=1.6, ls='--', label='슈트 ON')
 for nm, lo, hi in PHASES:
     a.axvspan(lo, hi, color='0.88', zorder=0)
 a.set_xlabel('시간 (s)'); a.set_ylabel('ES peak 활성도 (%)')
+a.set_ylim(bottom=Ao.max(axis=0).min() - 9)
 a.set_title('(a) 최대 활성 근육 — 증가', fontsize=9.5, pad=4)
-a.legend(loc='lower left'); a.grid(alpha=0.3, lw=0.5); a.set_axisbelow(True)
+a.legend(loc='lower left', framealpha=1.0, fontsize=7.6); a.grid(alpha=0.3, lw=0.5)
+a.set_axisbelow(True)
 for s in ('top', 'right'): a.spines[s].set_visible(False)
 
 b = axs[1]
@@ -141,8 +146,10 @@ b.plot(T, An.mean(axis=0), color='0.45', lw=1.6, ls='--', label='슈트 ON')
 for nm, lo, hi in PHASES:
     b.axvspan(lo, hi, color='0.88', zorder=0)
 b.set_xlabel('시간 (s)'); b.set_ylabel('ES mean 활성도 (%)')
+b.set_ylim(bottom=Ao.mean(axis=0).min() - 1.15)
 b.set_title('(b) 76근육 평균 — 감소', fontsize=9.5, pad=4)
-b.legend(loc='lower left'); b.grid(alpha=0.3, lw=0.5); b.set_axisbelow(True)
+b.legend(loc='lower left', framealpha=1.0, fontsize=7.6); b.grid(alpha=0.3, lw=0.5)
+b.set_axisbelow(True)
 for s in ('top', 'right'): b.spines[s].set_visible(False)
 
 c = axs[2]
@@ -150,13 +157,13 @@ srt = np.argsort(d)
 cols = ['0.30' if x < 0 else '0.72' for x in d[srt]]
 c.bar(range(n), d[srt], color=cols, edgecolor='k', lw=0.3)
 c.axhline(0, color='k', lw=0.9)
-c.set_xlabel('척추기립근 76개 (변화량 오름차순)')
+c.set_xlabel('척추기립근 76개')
 c.set_ylabel('Δ 시간평균 활성도 (%p)')
-c.set_title(f'(c) 근육별 재분배 (감소 {dec} / 증가 {inc})', fontsize=9.0, pad=4)
+c.set_title('(c) 근육별 재분배', fontsize=9.5, pad=4)
 c.grid(alpha=0.3, lw=0.5, axis='y'); c.set_axisbelow(True)
 for s in ('top', 'right'): c.spines[s].set_visible(False)
-fig.tight_layout(pad=0.8)
-fig.savefig(f'{OUT}/fig7_gait_redistribution.png', dpi=400)
+fig.tight_layout(pad=0.9)
+fig.savefig(f'{OUT}/fig7_gait_redistribution.png', dpi=450)
 plt.close(fig)
 print('\nSAVED', f'{OUT}/fig7_gait_redistribution.png')
 print('SAVED /data/tight_unified/gait_redistribution.json')

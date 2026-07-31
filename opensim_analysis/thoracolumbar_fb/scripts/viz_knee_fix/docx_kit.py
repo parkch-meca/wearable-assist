@@ -48,12 +48,12 @@ def set_korean_font(run, size=None, name=None, latin=None, bold=None, italic=Non
     return run
 
 
-def para(doc, text='', size=BODY_PT, bold=False, align=None, line=LINE,
+def para(doc, text='', size=BODY_PT, bold=False, align=None, line=None,
          space_before=0, space_after=4, name=None, latin=None, italic=False,
          color=None, indent_first=None):
     p = doc.add_paragraph()
     pf = p.paragraph_format
-    pf.line_spacing = line
+    pf.line_spacing = LINE if line is None else line
     pf.space_before = Pt(space_before)
     pf.space_after = Pt(space_after)
     if align is not None:
@@ -66,12 +66,12 @@ def para(doc, text='', size=BODY_PT, bold=False, align=None, line=LINE,
     return p
 
 
-def rich_para(doc, parts, size=BODY_PT, align=None, line=LINE, space_before=0,
+def rich_para(doc, parts, size=BODY_PT, align=None, line=None, space_before=0,
               space_after=4, indent_first=None):
     """parts = [(text, {'bold':True, 'size':9, ...}), ...]"""
     p = doc.add_paragraph()
     pf = p.paragraph_format
-    pf.line_spacing = line
+    pf.line_spacing = LINE if line is None else line
     pf.space_before = Pt(space_before); pf.space_after = Pt(space_after)
     if align is not None:
         p.alignment = align

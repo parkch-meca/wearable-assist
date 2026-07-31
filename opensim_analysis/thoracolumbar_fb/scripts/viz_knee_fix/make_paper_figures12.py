@@ -14,7 +14,10 @@ from PIL import Image, ImageOps
 
 KF = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 fm.fontManager.addfont(KF)
-plt.rcParams['font.family'] = fm.FontProperties(fname=KF).get_name()
+_KFNAME = fm.FontProperties(fname=KF).get_name()
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = [_KFNAME]
+plt.rcParams['mathtext.fontset'] = 'dejavusans'
 plt.rcParams['axes.unicode_minus'] = False
 plt.rcParams.update({'font.size': 9, 'figure.facecolor': 'white',
                      'savefig.facecolor': 'white'})
@@ -36,7 +39,7 @@ def arrow(ax, p0, p1, lw=1.4, color='0.25'):
 
 
 # ==================================================== Figure 1
-fig = plt.figure(figsize=(17 * CM, 9.8 * CM))
+fig = plt.figure(figsize=(16.4 * CM, 9.5 * CM))
 
 # --- (a) 전신 모델 + 슈트 경로 ---
 axA = fig.add_axes([0.015, 0.035, 0.295, 0.83]); axA.axis('off')
@@ -59,17 +62,19 @@ for (lb, mk), xx, yy, ly in zip(NODES, path_x, path_y, lbl_y):
                  bbox=dict(boxstyle='round,pad=0.26', fc='white', ec='0.4', lw=0.7),
                  arrowprops=dict(arrowstyle='-', color='0.4', lw=0.8))
 fig.text(0.162, 0.925, '(a) 근골격계 모델과 슈트 경로', ha='center', fontsize=9.5)
-fig.text(0.162, 0.885, '전신 620개 근육 중 ES 76개(IL·LTpL·LTpT)를 개별 정량',
-         ha='center', fontsize=8.2, color='0.25')
+fig.text(0.020, 0.885, 'ES 76개(IL·LTpL·LTpT) 개별 정량',
+         ha='left', fontsize=8.2, color='0.25')
 
 # --- (b) 토크 커플 모델링 ---
 axB = fig.add_axes([0.345, 0.075, 0.265, 0.76]); axB.axis('off')
 axB.set_xlim(0, 1); axB.set_ylim(0, 1)
 fig.text(0.478, 0.925, '(b) 슈트의 해석 모델링', ha='center', fontsize=9.5)
-axB.plot([0.5, 0.5], [0.22, 0.80], color='0.25', lw=3, solid_capstyle='round')
+axB.plot([0.5, 0.5], [0.22, 0.80], color='0.25', lw=3, solid_capstyle='round', zorder=1)
 for yy, lb in [(0.80, 'thoracic1\n(흉추 1번)'), (0.22, 'pelvis\n(골반)')]:
-    box(axB, 0.28, yy - 0.058, 0.44, 0.116, fc='0.92')
-    axB.text(0.5, yy, lb, ha='center', va='center', fontsize=8.4, linespacing=1.3)
+    _b = FancyBboxPatch((0.28, yy - 0.058), 0.44, 0.116, boxstyle='round,pad=0.010',
+                        fc='0.92', ec='k', lw=1.0, zorder=3)
+    axB.add_patch(_b)
+    axB.text(0.5, yy, lb, ha='center', va='center', fontsize=8.4, linespacing=1.3, zorder=4)
 axB.add_patch(FancyArrowPatch((0.245, 0.715), (0.245, 0.585),
               connectionstyle='arc3,rad=0.8',
               arrowstyle='-|>,head_width=3.4,head_length=6', lw=1.8, color='k'))
@@ -103,12 +108,12 @@ for yy, op in [(0.865, '×'), (0.630, '='), (0.395, '')]:
     if op:
         axC.text(0.575, yy - 0.122, op, fontsize=10, color='0.2', va='center')
 
-fig.savefig(f'{OUT}/fig1_model_and_suit.png', dpi=450, bbox_inches='tight', pad_inches=0.08)
+fig.savefig(f'{OUT}/fig1_model_and_suit.png', dpi=450)
 plt.close(fig); print('fig1')
 
 
 # ==================================================== Figure 2
-fig, ax = plt.subplots(figsize=(17.5 * CM, 6.6 * CM))
+fig, ax = plt.subplots(figsize=(16.4 * CM, 6.6 * CM))
 ax.axis('off'); ax.set_xlim(0, 1); ax.set_ylim(0, 1)
 STAGES = [
  ('①', '동작 생성\n· 리타겟', '합성 동작 또는 실측\n보행 데이터를 모델\n좌표로 변환', False),
@@ -117,9 +122,9 @@ STAGES = [
  ('④', 'Static\nOptimization', '동일 동작에서 슈트\n토크만 0 / 24 N·m로\n바꿔 2회 실행', False),
  ('⑤', '근육 부담 정량\n· 시각화', 'ES peak 산출 +\nreserve 점검,\n활성도 색 매핑 영상', False),
 ]
-n = len(STAGES); gap = 0.030
+n = len(STAGES); gap = 0.022
 bw = (1 - (n - 1) * gap) / n
-TOP, BH = 0.985, 0.735
+TOP, BH = 0.985, 0.700
 for i, (num, hd, ds, emph) in enumerate(STAGES):
     x = i * (bw + gap)
     box(ax, x, TOP - BH, bw, BH, fc='0.93' if emph else 'white',
@@ -128,16 +133,16 @@ for i, (num, hd, ds, emph) in enumerate(STAGES):
             fontweight='bold')
     ax.text(x + bw / 2, TOP - 0.235, hd, ha='center', va='center', fontsize=9.0,
             fontweight='bold', linespacing=1.35)
-    ax.text(x + bw / 2, TOP - 0.415, ds, ha='center', va='top', fontsize=8.1,
+    ax.text(x + bw / 2, TOP - 0.415, ds, ha='center', va='top', fontsize=7.5,
             linespacing=1.55)
     if i < n - 1:
         arrow(ax, (x + bw + 0.003, TOP - BH / 2), (x + bw + gap - 0.003, TOP - BH / 2),
               lw=1.6)
 ax.text(0.5, 0.085,
-        '②단계가 관문 — 동작이 물리적으로 성립하지 않으면 이후 정량은 무의미하므로, '
+        '②단계가 관문 — 동작이 물리적으로 성립하지 않으면 이후 정량이 무의미하므로,\n'
         '검증 미통과 동작은 해석 대상에서 제외하고 재설계한다.',
-        ha='center', va='center', fontsize=8.6,
-        bbox=dict(boxstyle='round,pad=0.42', fc='white', ec='0.35', lw=1.0))
-fig.savefig(f'{OUT}/fig2_pipeline.png', dpi=450, bbox_inches='tight', pad_inches=0.06)
+        ha='center', va='center', fontsize=8.4, linespacing=1.45,
+        bbox=dict(boxstyle='round,pad=0.40', fc='white', ec='0.35', lw=1.0))
+fig.savefig(f'{OUT}/fig2_pipeline.png', dpi=450)
 plt.close(fig); print('fig2')
 print('OUT =', OUT)

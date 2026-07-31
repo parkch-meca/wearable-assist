@@ -10,6 +10,9 @@ from docx_kit import (new_doc, para, rich_para, heading, add_toc, add_page_numbe
                       add_table, add_figure, add_caption, set_korean_font, BODY_PT)
 from docx.enum.text import WD_ALIGN_PARAGRAPH as A
 from docx.shared import Pt, Cm
+import paper_numbers as pn      # 표기 규칙 단일 소스 — 직접 반올림 금지
+import docx_kit
+docx_kit.LINE = 1.6           # 160 % — 그림 배치 여지 확보 (규격 160~180 % 내)
 
 FIG = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/docs/images/paper_five_motion'
 OUT = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/docs/five_motion_paper.docx'
@@ -54,7 +57,7 @@ para(doc, '작업 관련 요통을 줄이기 위한 능동 웨어러블 슈트�
           '동일한 모델 파일과 해석 설정을 공유하며, 이는 파일 해시로 검증하였다.',
      size=9.5, line=1.55, align=A.JUSTIFY, indent_first=0.5, space_after=5)
 para(doc, '주 지표로 슈트 토크가 최대치의 90 % 이상인 구간의 ES peak 평균을 사전 정의하였다. 그 결과 '
-          '맨몸 스쿼트 −37.3 %, 맨몸 스툽 −33.0 %, 박스 운반 −27.6 %, 박스 들기 −22.5 %의 활성도 감소가 '
+          '맨몸 스쿼트 −37.3 %, 맨몸 스툽 −33.0 %, 박스 운반 −27.7 %, 박스 들기 −22.5 %의 활성도 감소가 '
           '관찰되었다. 부하가 클수록 상대 감소율이 작아지는 경향이 나타났으나, 이 경향은 지표 정의에 따라 '
           '성립하지 않았다. 맨몸 보행에서는 감소가 아니라 재분배가 관찰되었다. 전체 활성도 총량은 '
           '−17.4 %p 감소하는 반면 최대 활성 근육은 +21.4 % 증가하며, 장늑근(Iliocostalis)이 −90.9 % '
@@ -83,7 +86,7 @@ para(doc, 'Active wearable suits for occupational low-back pain are being develo
      name='Times New Roman', latin='Times New Roman')
 para(doc, 'The primary outcome, pre-specified as the mean ES peak activation over the window in which '
           'suit torque exceeds 90 % of its maximum, decreased by 37.3 % (squat), 33.0 % (stoop), '
-          '27.6 % (carrying) and 22.5 % (lifting). A monotonic decrease of relative benefit with '
+          '27.7 % (carrying) and 22.5 % (lifting). A monotonic decrease of relative benefit with '
           'increasing load was observed for the primary outcome but did not hold for alternative '
           'outcome definitions. During level walking the suit redistributed rather than reduced load: '
           'total activation fell by 17.4 percentage points while the most-active muscle rose by 21.4 %, '
@@ -98,7 +101,7 @@ rich_para(doc, [('Keywords: ', {'bold': True, 'latin': 'Times New Roman'}),
                 ('wearable robot, shape memory alloy, erector spinae, musculoskeletal simulation, '
                  'OpenSim, static optimization, low back pain prevention',
                  {'latin': 'Times New Roman'})],
-          size=9.5, line=1.5, space_after=14)
+          size=9.5, line=1.45, space_after=10)
 
 # ============================================================ 목차
 doc.add_page_break()
@@ -175,7 +178,7 @@ para(doc, '정량 대상 ES는 장늑근(IL, 24개), 최장근 요추부(LTpL, 1
      indent_first=0.5, align=A.JUSTIFY)
 add_figure(doc, f'{FIG}/fig1_model_and_suit.png',
            'Figure 1. 근골격계 모델과 슈트 모델링. (a) 전신 모델과 슈트 인장 경로, '
-           '(b) 흉추1–골반 간 순수 토크 커플, (c) 액추에이터 사양에서 해석 토크 유도.', width_cm=15.5)
+           '(b) 흉추1–골반 간 순수 토크 커플, (c) 액추에이터 사양에서 해석 토크 유도.', width_cm=16.4)
 
 heading(doc, '2.2 모델 정합성 수정 및 회귀 검증', 2)
 para(doc, '해석 과정에서 모델 자체의 정의 오류로 사람이 통상 수행하는 자세가 구현되지 않는 문제가 '
@@ -201,13 +204,13 @@ para(doc, '슈트는 흉추 1번(thoracic1)과 골반(pelvis) 사이에 작용�
 
 heading(doc, '2.4 동작 데이터', 2)
 add_table(doc, 'Table 3. 5개 작업 동작의 해석 조건.',
-          ['동작', '외부 하중', '자세 특징', '운동학 출처', '지면반력', '프레임'],
-          [['맨몸 스쿼트', '0 kg', '요추 중립, 무릎 굴곡 하강', '합성', '합성 GRF', '151'],
-           ['맨몸 스툽', '0 kg', '고관절 힌지, 요추 굴곡', '합성', '합성 GRF', '135'],
-           ['박스 들기', '20 kg', '스툽 자세, 테이블 30 cm', '합성', '없음 (골반 reserve)', '226'],
-           ['맨몸 보행', '0 kg', '정상 보행 1주기', '실측 리타겟', '실측 GRF', '73'],
-           ['박스 운반', '20 kg', '전방 하중, 체간 후경 5°', '실측 리타겟', '실측 GRF + 하중 분배', '73']],
-          widths=[2.7, 1.9, 4.3, 2.3, 3.4, 1.4])
+          ['동작', '외부 하중', '자세 특징', '운동학 출처', '지면반력', '프레임', '샘플링'],
+          [['맨몸 스쿼트', '0 kg', '요추 중립, 무릎 굴곡 하강', '합성', '합성 GRF', '151', '30 Hz'],
+           ['맨몸 스툽', '0 kg', '고관절 힌지, 요추 굴곡', '합성', '합성 GRF', '135', '26.7 Hz (비균일)'],
+           ['박스 들기', '20 kg', '스툽 자세, 테이블 30 cm', '합성', '없음 (골반 reserve)', '226', '30 Hz'],
+           ['맨몸 보행', '0 kg', '정상 보행 1주기', '실측 리타겟', '실측 GRF', '73', '60 Hz'],
+           ['박스 운반', '20 kg', '전방 하중, 체간 후경 5°', '실측 리타겟', '실측 GRF + 하중 분배', '73', '60 Hz']],
+          widths=[2.5, 1.7, 3.7, 2.1, 3.0, 1.3, 2.1], size=8.4)
 para(doc, '합성 동작은 문헌 기반 관절 각도 목표를 설정하고 역기구학으로 생성하였다. 보행·운반은 '
           'gait2354 실측 역기구학 결과를 모델 좌표계로 리타겟하였다. 저역통과 필터는 합성 동작에 '
           '적용하지 않았고 실측 리타겟에는 6 Hz를 적용하였다. 합성 궤적은 매끄러워 필터가 불필요하고 '
@@ -216,7 +219,7 @@ para(doc, '합성 동작은 문헌 기반 관절 각도 목표를 설정하고 �
      indent_first=0.5, align=A.JUSTIFY)
 add_figure(doc, f'{FIG}/fig3_five_motion_postures.png',
            'Figure 2. 5개 작업 동작의 대표 자세. 각 패널은 슈트 미착용(좌)과 착용(우)을 나란히 보인다.',
-           width_cm=15.5)
+           width_cm=16.4)
 
 heading(doc, '2.5 외력 및 지면반력', 2)
 para(doc, '박스 20 kg(196.2 N)은 양손에 균등 분배한 하방 외력(98.1 N/hand)으로 부여하였다. 보행·운반은 '
@@ -236,7 +239,7 @@ para(doc, '각 동작에 대해 슈트 토크만 0 / 24 N·m로 바꾸어 SO를 
      indent_first=0.5, align=A.JUSTIFY)
 add_table(doc, 'Table 4. 동작별 실제 흡수된 척추 reserve (슈트 OFF).',
           ['동작', '척추 reserve 최대 (N·m)'],
-          [[NM[k], f(U[k]['res'])] for k in ORD],
+          [[pn.NAME[k], pn.fmt(pn.reserve(k))] for k in pn.ORDER],
           widths=[6.0, 6.0], align_right_cols=(1,))
 para(doc, '전 동작에서 2 N·m 이하로 균일하다. 고부하 동작에서도 tight 설정이 유효하게 작동하여 근육이 '
           '척추 부하를 담당하였다. 총 658 프레임 중 7 프레임에서 최적화가 수렴하지 않았으며, 해당 '
@@ -261,11 +264,11 @@ para(doc, '슈트 OFF 조건은 토크가 0이므로 창을 자체 정의할 수
           '일치함을 확인하였다(Table 5).', indent_first=0.5, align=A.JUSTIFY)
 add_table(doc, 'Table 5. 동작별 슈트 작동창 (슈트 토크 ≥ 최대치의 90 %).',
           ['동작', '창 (s)', '창 프레임 / 전체', '비고'],
-          [['맨몸 스쿼트', '1.708 – 3.292', '47 / 151', '코사인 램프'],
-           ['맨몸 스툽', '2.092 – 3.408', '35 / 135', '코사인 램프'],
-           ['박스 들기', '2.225 – 5.833', '109 / 226', '하중 구간'],
-           ['맨몸 보행', '전 구간', '73 / 73', '상시 24 N·m'],
-           ['박스 운반', '전 구간', '73 / 73', '상시 24 N·m']],
+          [['맨몸 스쿼트', '1.708 – 3.292', '47 / 151', '코사인 램프 (30 Hz)'],
+           ['맨몸 스툽', '2.092 – 3.408', '35 / 135', '코사인 램프 (26.7 Hz)'],
+           ['박스 들기', '2.225 – 5.833', '109 / 226', '하중 구간 (30 Hz)'],
+           ['맨몸 보행', '전 구간', '73 / 73', '상시 24 N·m (60 Hz)'],
+           ['박스 운반', '전 구간', '73 / 73', '상시 24 N·m (60 Hz)']],
           widths=[3.2, 3.6, 3.6, 3.6])
 
 heading(doc, '2.8 동작 검증 절차', 2)
@@ -277,7 +280,7 @@ para(doc, '정량 해석 이전에 모든 동작을 렌더 기반 육안 검증�
      indent_first=0.5, align=A.JUSTIFY)
 add_figure(doc, f'{FIG}/fig2_pipeline.png',
            'Figure 3. 해석 파이프라인. 2단계(동작 육안 검증)가 관문으로, 검증 미통과 동작은 '
-           '해석 대상에서 제외된다.', width_cm=15.5)
+           '해석 대상에서 제외된다.', width_cm=16.4)
 
 heading(doc, '2.9 해석 조건 전수 감사 및 폐기된 서술', 2)
 para(doc, '본 연구는 5개 동작을 순차적으로 진행하였고, 그 과정에서 모델과 해석 설정이 갱신되었으나 앞선 '
@@ -303,10 +306,11 @@ para(doc, '스쿼트에서 모델 변경 영향이 개별 회귀 검증의 합�
 # ============================================================ 3. 결과
 heading(doc, '3. 결과', 1)
 heading(doc, '3.1 동작별 ES 활성도 및 슈트 효과', 2)
+_B = {k: pn.metric(k, 'b') for k in pn.ORDER}
 add_table(doc, 'Table 6. 주 지표(슈트 작동창 ES peak 평균) 결과. 슈트 OFF → ON (24 N·m).',
           ['동작', '외부 하중', 'OFF (%)', 'ON (%)', 'Δ (%p)', 'Δ (%)'],
-          [[NM[k], LD[k], f(U[k]['b_off']), f(U[k]['b_on']),
-            f(U[k]['b_on'] - U[k]['b_off']), '**' + f(U[k]['b'], 1) + '**'] for k in ORD],
+          [[pn.NAME[k], pn.LOAD[k], _B[k]['off_s'], _B[k]['on_s'],
+            _B[k]['dpp_s'], '**' + _B[k]['rel_s'] + '**'] for k in pn.ORDER],
           widths=[3.0, 2.2, 2.4, 2.4, 2.4, 2.4], align_right_cols=(2, 3, 4, 5))
 para(doc, '들기·운반·스툽·스쿼트에서 ES peak가 22–37 % 감소하였다. 맨몸 보행에서는 감소가 아니라 증가가 '
           '관찰되었으며, 이는 3.4절에서 재분배 관점으로 분석한다(Table 6). 동작별 시계열을 Figure 4에 '
@@ -314,12 +318,12 @@ para(doc, '들기·운반·스툽·스쿼트에서 ES peak가 22–37 % 감소�
      indent_first=0.5, align=A.JUSTIFY)
 add_figure(doc, f'{FIG}/fig4_es_timeseries.png',
            'Figure 4. 동작별 척추기립근 peak 활성도 시계열. 실선은 슈트 미착용, 파선은 착용(24 N·m). '
-           '음영은 (a)–(c) 슈트 작동창, (d)(e) mid-stance 구간이다.', width_cm=15.5)
+           '음영은 (a)–(c) 슈트 작동창, (d)(e) mid-stance 구간이다.', width_cm=16.4)
 
 heading(doc, '3.2 부하–효과 관계', 2)
 para(doc, '허리에 신전 부하가 걸리는 4개 동작을 외부 하중 순으로 정렬하면, 주 지표에서 상대 감소율이 '
           '부하가 클수록 작아지는 경향이 관찰된다(Figure 5). 동일한 20 kg 하중을 갖는 두 동작(운반 '
-          '−27.6 %, 들기 −22.5 %)이 5.1 %p 차이로 근접하여, 자세 유형이 달라도 부하가 같으면 상대 '
+          '−27.7 %, 들기 −22.5 %)이 5.2 %p 차이로 근접하여, 자세 유형이 달라도 부하가 같으면 상대 '
           '효과가 유사함을 시사한다. 다만 이 경향은 주 지표에서만 성립하며 보조 지표에서는 성립하지 '
           '않는다(3.5절). 따라서 부하–효과 단조성을 본 연구의 확립된 결과로 제시하지 않으며, 모델 검증 '
           '근거로도 사용하지 않는다.', indent_first=0.5, align=A.JUSTIFY)
@@ -335,30 +339,33 @@ para(doc, '통일 조건에서 슈트 미착용 시 ES peak 최대값은 스쿼�
           '0.6 %p 차이로 근접한다(4절).', indent_first=0.5, align=A.JUSTIFY)
 
 heading(doc, '3.4 맨몸 보행 — 감소가 아니라 재분배', 2)
-para(doc, f"주 지표에서 보행의 ES peak는 {f(U['gait']['b_off'])} → {f(U['gait']['b_on'])} %로 증가"
-          f"(+{f(U['gait']['b'],1)} %)하는 반면, 보조 지표 ES mean은 {f(U['gait']['c_off'])} → "
-          f"{f(U['gait']['c_on'])} %로 감소({f(U['gait']['c'],1)} %)한다. 이 상반된 결과를 근육 단위로 "
+para(doc, f"주 지표에서 보행의 ES peak는 {pn.metric('gait','b')['off_s']} → "
+          f"{pn.metric('gait','b')['on_s']} %로 증가"
+          f"(+{pn.fmt(pn.metric('gait','b')['rel'],1)} %)하는 반면, 보조 지표 ES mean은 {pn.metric('gait','c')['off_s']} → "
+          f"{pn.metric('gait','c')['on_s']} %로 감소({pn.metric('gait','c')['rel_s']} %)한다. 이 상반된 결과를 근육 단위로 "
           f"분해한 결과, 활성도가 감소한 근육이 {G['n_dec']}개, 증가한 근육이 {G['n_inc']}개, 변화가 "
           f"없는 근육이 {G['n_flat']}개였다. 감소분 합은 {f(G['sum_dec'])} %p, 증가분 합은 "
-          f"+{f(G['sum_inc'])} %p로 순변화는 {f(G['net'])} %p이며, 집중도(peak/mean)는 11.68에서 "
-          f"16.10으로 상승하였다. 즉 총량은 감소하지만 부하가 소수 근육으로 집중된다. 근육군별 변화는 "
+          f"+{f(G['sum_inc'])} %p로 순변화는 {pn.fmt(pn.GAIT_TOTAL_DPP)} %p이며, 집중도(peak/mean)는 "
+          f"{pn.fmt(pn.gait_phase(3)['conc_off'])}에서 {pn.fmt(pn.gait_phase(3)['conc_on'])}으로 상승하였다. 즉 총량은 감소하지만 부하가 소수 근육으로 집중된다. 근육군별 변화는 "
           f"Table 7에, 보행 구간별 변화는 Table 8에 정리하였다.",
      indent_first=0.5, align=A.JUSTIFY)
-gk = G['groups']
+_GG = [('장늑근 (Iliocostalis)', 'Iliocostalis (IL)'),
+       ('최장근 요추부 (LTpL)', 'Longissimus pars lumborum (LTpL)'),
+       ('최장근 흉추부 (LTpT)', 'Longissimus pars thoracis (LTpT)')]
 add_table(doc, 'Table 7. 맨몸 보행의 근육군별 재분배 (전주기 시간평균 활성도 합).',
           ['근육군', '개수', 'OFF', 'ON', '변화'],
-          [['장늑근 (Iliocostalis)', '24', f(gk['Iliocostalis (IL)'][0]),
-            f(gk['Iliocostalis (IL)'][1]), '**−90.9 %**'],
-           ['최장근 요추부 (LTpL)', '10', f(gk['Longissimus pars lumborum (LTpL)'][0]),
-            f(gk['Longissimus pars lumborum (LTpL)'][1]), '**+28.5 %**'],
-           ['최장근 흉추부 (LTpT)', '42', f(gk['Longissimus pars thoracis (LTpT)'][0]),
-            f(gk['Longissimus pars thoracis (LTpT)'][1]), '−5.7 %']],
+          [[lbl, str(pn.gait_group(key)['n']), pn.gait_group(key)['off_s'],
+            pn.gait_group(key)['on_s'],
+            ('**' + pn.gait_group(key)['rel_s'] + ' %**') if abs(pn.gait_group(key)['rel']) > 10
+            else (pn.gait_group(key)['rel_s'] + ' %')] for lbl, key in _GG],
           widths=[5.4, 1.8, 2.4, 2.4, 3.0], align_right_cols=(1, 2, 3, 4))
+_PH = [pn.gait_phase(i) for i in range(len(G['phases']))]
 add_table(doc, 'Table 8. 맨몸 보행의 구간별 재분배.',
           ['구간', 'ES peak OFF → ON', 'ES mean OFF → ON', '집중도 OFF → ON'],
-          [[r['phase'], f"{f(r['peak_off'])} → {f(r['peak_on'])} ({100*(r['peak_on']-r['peak_off'])/r['peak_off']:+.1f} %)".replace('-', '\u2212'),
-            f"{f(r['mean_off'])} → {f(r['mean_on'])} ({100*(r['mean_on']-r['mean_off'])/r['mean_off']:+.1f} %)".replace('-', '\u2212'),
-            f"{f(r['conc_off'])} → {f(r['conc_on'])}"] for r in G['phases']],
+          [[r['phase'],
+            f"{pn.fmt(r['peak_off'])} → {pn.fmt(r['peak_on'])} ({pn.fmt(r['peak_rel'],1,True)} %)",
+            f"{pn.fmt(r['mean_off'])} → {pn.fmt(r['mean_on'])} ({pn.fmt(r['mean_rel'],1,True)} %)",
+            f"{pn.fmt(r['conc_off'])} → {pn.fmt(r['conc_on'])}"] for r in _PH],
           widths=[2.6, 4.6, 4.6, 3.2])
 para(doc, '세 구간 모두에서 최대 활성 근육은 증가하고 평균은 감소하며 집중도가 상승한다. 재분배는 특정 '
           '보행 국면에 국한되지 않고 주기 전반에 걸쳐 나타난다.', indent_first=0.5, align=A.JUSTIFY)
@@ -377,20 +384,22 @@ para(doc, '총량이 감소한 것은 전체 부하 경감으로 볼 여지가 �
      indent_first=0.5, align=A.JUSTIFY)
 add_figure(doc, f'{FIG}/fig7_gait_redistribution.png',
            'Figure 6. 맨몸 보행 조건의 근육별 재분배. (a) 최대 활성 근육은 증가, (b) 76근육 평균은 감소, '
-           '(c) 근육별 시간평균 활성도 변화 분포.', width_cm=15.5)
+           '(c) 근육별 시간평균 활성도 변화 분포(감소 37개·증가 10개, 변화량 오름차순 정렬).',
+           width_cm=16.4)
 
 heading(doc, '3.5 주 지표 선택이 결론에 미치는 영향', 2)
+def _cell(k, m):
+    d = pn.metric(k, m)
+    return f"{d['off_s']} → {d['on_s']}\n({d['rel_s']} %)"
 add_table(doc, 'Table 9. 지표 3종 전 동작 대조. 괄호 안은 상대 변화율.',
           ['동작', '하중', '(a) 전주기 peak', '(b) 슈트 작동창 peak 평균 (주 지표)', '(c) ES mean 창평균'],
-          [[NM[k], LD[k],
-            f"{f(U[k]['a_off'])} → {f(U[k]['a_on'])} ({U[k]['a']:+.1f} %)".replace('-', '\u2212'),
-            '**' + f"{f(U[k]['b_off'])} → {f(U[k]['b_on'])} ({U[k]['b']:+.1f} %)".replace('-', '\u2212') + '**',
-            f"{f(U[k]['c_off'])} → {f(U[k]['c_on'])} ({U[k]['c']:+.1f} %)".replace('-', '\u2212')] for k in ORD]
+          [[pn.NAME[k], pn.LOAD[k], _cell(k, 'a'), '**' + _cell(k, 'b') + '**', _cell(k, 'c')]
+           for k in pn.ORDER]
           + [['부하 순 단조 경향\n(부하 있는 4개 동작 기준)', '—', '성립하지 않음', '**성립**', '성립하지 않음']],
-          widths=[2.4, 1.4, 4.0, 4.6, 4.0], size=8.4)
+          widths=[2.6, 1.5, 3.9, 4.5, 3.9], size=8.6)
 para(doc, '지표 간 편차의 원인은 각 지표의 정의에서 설명된다. 박스 운반의 (a) −11.4 %는 슈트 미착용에서 '
           '최대 활성 근육이 100 %에 도달하여 더 이상 커질 수 없기 때문이며, 정점값이 실제 요구를 '
-          '반영하지 못해 효과가 저평가된다. 창 평균 지표에서는 −27.6 %로 회복된다. 박스 들기의 (a) '
+          '반영하지 못해 효과가 저평가된다. 창 평균 지표에서는 −27.7 %로 회복된다. 박스 들기의 (a) '
           '−32.1 %와 (b) −22.5 % 차이는 동일한 24 N·m가 걸린 구간 안에서도 슈트 효과가 −9 %에서 −34 %'
           '까지 변동하기 때문이며, 최대 활성 근육이 시점마다 바뀌는 데서 비롯된다(활성도 90 % 이상 '
           '프레임은 0개로 포화가 아니다). (c)는 76개 중 다수가 비활성이어서 평균이 희석되며, 보행에서 '
@@ -403,12 +412,13 @@ para(doc, '동일한 시뮬레이션 결과에서 지표 정의만 바꾸어도 
           '아니라 복수 지표를 병기할 것을 권고한다.', indent_first=0.5, align=A.JUSTIFY)
 
 heading(doc, '3.6 Reserve 설정 민감도', 2)
+_S, _T = pn.RES_SENS['std'], pn.RES_SENS['tight']
 add_table(doc, 'Table 10. 맨몸 보행 조건의 reserve 설정 민감도.',
           ['항목', '표준 reserve (척추 opt 100 N·m)', 'tight reserve (척추 opt 5 N·m)'],
-          [['실제 흡수된 척추 reserve 최대', '16.78 N·m', '**1.01 N·m**'],
-           ['보행 ES peak, 슈트 OFF', '11.13 %', '**35.08 %**'],
-           ['보행 ES peak, 슈트 ON', '5.54 %', '34.11 %'],
-           ['슈트 효과 (전주기 peak)', '**−5.59 %p ("보조")**', '**−0.96 %p**']],
+          [['실제 흡수된 척추 reserve 최대', f"{pn.fmt(_S['reserve'])} N·m", f"**{pn.fmt(_T['reserve'])} N·m**"],
+           ['보행 ES peak, 슈트 OFF', f"{pn.fmt(_S['off'])} %", f"**{pn.fmt(_T['off'])} %**"],
+           ['보행 ES peak, 슈트 ON', f"{pn.fmt(_S['on'])} %", f"{pn.fmt(_T['on'])} %"],
+           ['슈트 효과 (전주기 peak)', f"**{_S['dpp_s']} %p (\"보조\")**", f"**{_T['dpp_s']} %p**"]],
           widths=[5.4, 5.3, 5.3], align_right_cols=(1, 2))
 para(doc, '표준 설정에서는 reserve가 척추 신전 부하를 근육 대신 흡수하여 ES 활성도를 약 3.2배 '
           '과소평가하였다. 더 중요하게는 reserve가 흡수하는 부하량이 슈트 착용 시 함께 감소하면서 '
@@ -420,7 +430,7 @@ para(doc, '표준 설정에서는 reserve가 척추 신전 부하를 근육 대�
      indent_first=0.5, align=A.JUSTIFY)
 add_figure(doc, f'{FIG}/fig6_reserve_sensitivity.png',
            'Figure 7. reserve 설정에 따른 척추기립근 활성도 추정과 슈트 효과의 차이. '
-           '(a) reserve가 흡수한 척추 부하, (b) 근육 활성도와 슈트 효과 추정.', width_cm=15.0)
+           '(a) reserve가 흡수한 척추 부하, (b) 근육 활성도와 슈트 효과 추정.', width_cm=16.4)
 
 # ============================================================ 4. 문헌
 heading(doc, '4. 선행 연구 대조', 1)
@@ -474,7 +484,7 @@ para(doc, '조건 통일 과정에서 절대 활성도는 조건에 민감하고
           '반드시 병기해야 하며, 조건이 다른 연구 간 절대값 비교는 신중해야 한다. 상대 지표는 조건 '
           '변화에 더 견고하나 지표 정의 자체에는 민감하다.', indent_first=0.5, align=A.JUSTIFY)
 heading(doc, '5.3 선택적 보조와 상시 구동의 트레이드오프', 2)
-para(doc, '맨몸 보행과 박스 운반은 운동학이 유사하고 하중만 다르다. 운반에서는 −27.6 %의 감소가 '
+para(doc, '맨몸 보행과 박스 운반은 운동학이 유사하고 하중만 다르다. 운반에서는 −27.7 %의 감소가 '
           '나타나지만 보행에서는 총량 감소와 함께 최대 활성 근육의 증가라는 재분배가 나타난다. SMA '
           '액추에이터는 가열–냉각을 반복하는 On/Off 구동보다 50 ℃를 유지하는 상시 구동이 잠열 재투입을 '
           '피할 수 있어 에너지 효율이 약 13배 높다. 그러나 보행 중 상시 신전 토크가 부하를 줄이는 대신 '
@@ -519,7 +529,7 @@ for t in ['실측 근전도 검증 — 특히 스쿼트 조건과 보행 재분�
 heading(doc, '8. 결론', 1)
 for i, t in enumerate([
     'SMA 직물 근육 기반 허리 보조 슈트(24 N·m)는 5동작 완전 통일 조건에서 척추기립근 peak 활성도(슈트 '
-    '작동창 평균)를 맨몸 스쿼트 −37.3 %, 맨몸 스툽 −33.0 %, 박스 운반 −27.6 %, 박스 들기 −22.5 % '
+    '작동창 평균)를 맨몸 스쿼트 −37.3 %, 맨몸 스툽 −33.0 %, 박스 운반 −27.7 %, 박스 들기 −22.5 % '
     '변화시켰다.',
     '주 지표에서는 부하가 클수록 상대 감소율이 작아지는 경향이 관찰되나 이 경향은 지표 간 견고하지 '
     '않다. 지표 정의만 바꾸어도 개별 동작 감소율이 10 %p 이상 달라지므로, 지표 정의는 결론을 좌우하는 '

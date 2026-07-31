@@ -647,10 +647,10 @@ bullets(f1, ['발바닥 전체 접지 · 무릎만 굽혀 하강',
              '요추 중립 유지 (스툽과의 결정적 차이)',
              '양팔 전방'], size=16, sa=9)
 para(f1, '슈트 작동 구간 평균 (주 지표)', size=14, color=DARK, space_before=8, space_after=1)
-para(f1, '    ES peak  60.4 % → 37.9 %  =  −37 %', size=15, bold=True,
+para(f1, '    ES peak  60.37 % → 37.88 %  =  −37.3 %', size=15, bold=True,
      color=GREEN, space_after=6)
 para(f1, '전주기 정점', size=14, color=DARK, space_after=1)
-para(f1, '    ES peak  71.7 % → 46.6 %  =  −35 %', size=15, bold=True,
+para(f1, '    ES peak  71.72 % → 46.56 %  =  −35.1 %', size=15, bold=True,
      color=GREEN, space_after=0)
 pic(s, f'{MEDIA}/kf_squat.png', 6.35, 2.30, 6.4, 3.68)
 _, cf = rect(s, M, 6.04, SW - 2 * M, 0.80, fill=BOXBG2, line=GREEN)
@@ -678,14 +678,14 @@ bullets(f1, ['고관절 힌지 중심 · 무릎은 편 채 굽힘',
              '요추 굴곡 동반 → ES 부하가 스쿼트보다 큼',
              '산업 현장에서 가장 빈번한 위험 자세'], size=16, sa=9)
 para(f1, '슈트 작동 구간 평균 (주 지표)', size=14, color=DARK, space_before=8, space_after=1)
-para(f1, '    ES peak  65.3 % → 43.7 %  =  −33 %', size=15, bold=True,
+para(f1, '    ES peak  65.30 % → 43.74 %  =  −33.0 %', size=15, bold=True,
      color=GREEN, space_after=6)
 para(f1, '전주기 정점', size=14, color=DARK, space_after=1)
-para(f1, '    ES peak  70.4 % → 46.3 %  =  −34 %', size=15, bold=True,
+para(f1, '    ES peak  70.37 % → 46.33 %  =  −34.2 %', size=15, bold=True,
      color=GREEN, space_after=0)
 pic(s, f'{MEDIA}/kf_stoop.png', 6.35, 2.30, 6.4, 3.68)
 _, cf = rect(s, M, 6.04, SW - 2 * M, 0.80, fill=BOXBG2, line=GREEN)
-para(cf, '⭐ 미착용 70.4 %는 선행 실측 EMG(69.8 %MVC)와 0.6 %p 차이 — 모델 신뢰도의 직접 근거',
+para(cf, '⭐ 미착용 70.37 %는 선행 실측 EMG(69.8 %MVC)와 0.6 %p 차이 — 모델 신뢰도의 직접 근거',
      size=15, color=DARK, align=PP_ALIGN.CENTER, first=True, space_after=0)
 cf.vertical_anchor = MSO_ANCHOR.MIDDLE
 notes(s, '여기서 이미 부하가 클수록 상대 감소율이 작아지는 경향이 보입니다. '
@@ -742,7 +742,7 @@ notes(s, '이 슬라이드는 학회에서 질문이 나올 만한 부분입니�
 # ============================================================ S19 박스 결과
 s = slide('동작 ③ 박스 들기 — 결과')
 headline(s, [('23 % ↓', True, GREEN, 44),
-             ('     ES peak  71.0 %  →  55.0 %', False, DARK, 22)],
+             ('     ES peak  71.02 %  →  55.03 %', False, DARK, 22)],
          top=1.45, size=44, h=0.78)
 _, f1 = rect(s, M, 2.35, 5.55, 3.45, fill=BOXBG)
 para(f1, '조건', size=18, bold=True, color=NAVY, first=True, space_after=10)
@@ -751,7 +751,7 @@ bullets(f1, ['박스 20 kg, 테이블 높이 30 cm, 박스 30 cm',
              '슈트 작동 구간(2.2–5.8 s) 평균'], size=16, sa=10)
 para(f1, '주 지표 (슈트 작동 구간 평균)', size=14, color=DARK,
      space_before=8, space_after=1)
-para(f1, '    ES peak  71.0 % → 55.0 %  =  −22.5 %', size=15, bold=True,
+para(f1, '    ES peak  71.02 % → 55.03 %  =  −22.5 %', size=15, bold=True,
      color=GREEN, space_after=0)
 pic(s, f'{MEDIA}/fig_box_es.png', 6.35, 2.35, 6.4, 3.45)
 _, cf = rect(s, M, 5.92, SW - 2 * M, 0.85, fill=BOXBG2, line=GREEN)
@@ -780,7 +780,7 @@ bullets(f1, ['실측 보행 데이터 리타겟 + 실측 지면반력',
              '좌우 팔 교대 스윙 구현'], size=16, sa=8)
 para(f1, '총량은 줄고 최대 근육은 늘어남', size=15, bold=True, color=NAVY,
      space_before=6, space_after=6)
-for t_, v_, c_ in [('76근육 평균', '−11.9 %', GREEN),
+for t_, v_, c_ in [('76근육 평균', '−12.0 %', GREEN),
                    ('최대 활성 근육', '+21.4 %', RED),
                    ('장늑근(IL) 24개', '−90.9 %', GREEN),
                    ('최장근 요추부(LTpL)', '+28.5 %', RED)]:
@@ -804,8 +804,8 @@ s = slide('동작 ④ 걷기 — 해석 지표의 함정',
 hdr = ['', '표준 reserve', '정확 reserve (tight)']
 rows = [('spine reserve 최대', '16.8 N·m', '1.0 N·m'),
         ('걷기 ES peak (슈트 OFF)', '11 %', '35 %'),
-        ('슈트 효과 (전주기 기준)', '−5.6 %p  ("보조")', '−1.0 %p'),
-        ('스툽 미착용 ES peak', '31.9 % (문헌 미달)', '70.4 % (문헌 69.8 %)')]
+        ('슈트 효과 (전주기 기준)', '−5.59 %p  ("보조")', '−0.97 %p'),
+        ('스툽 미착용 ES peak', '31.90 % (문헌 미달)', '70.37 % (문헌 69.8 %)')]
 cw3 = [4.5, 3.9, 3.9]
 x0 = CX - sum(cw3) / 2
 ty = 2.05
@@ -900,7 +900,7 @@ headline(s, [('슈트는 척추에 부하가 있을 때만 작동한다', True, 
          top=1.42, size=27, h=0.52, align=PP_ALIGN.LEFT)
 cd = CategoryChartData()
 cd.categories = ['맨몸 걷기', '박스 들기', '박스 나르기', '맨몸 스툽', '맨몸 스쿼트']
-cd.add_series('ES 감소율 (%)', (0, 22.5, 27.6, 33.0, 37.3))
+cd.add_series('ES 감소율 (%)', (0, 22.5, 27.7, 33.0, 37.3))
 gf = s.shapes.add_chart(XL_CHART_TYPE.BAR_CLUSTERED, I(0.7), I(2.02),
                         I(SW - 1.4), I(3.62), cd)
 ch = gf.chart
@@ -945,7 +945,7 @@ ca.tick_labels.font.color.rgb = DARK
 ca.has_major_gridlines = False
 _, cf = rect(s, M, 5.70, SW - 2 * M, 1.14, fill=BOXBG2, line=GREEN)
 para(cf, '부하가 걸리는 4개 동작에서 부하가 클수록 상대 감소율이 작아짐 '
-         '(스쿼트 37 → 스툽 33 → 나르기 28 → 들기 23 %).',
+         '(스쿼트 37.3 → 스툽 33.0 → 나르기 27.7 → 들기 22.5 %).',
      size=15, color=DARK, align=PP_ALIGN.CENTER, first=True, space_after=3)
 para(cf, '※ 걷기는 감소가 아니라 재분배이므로 0으로 표기(S21).  '
          '⚠ 이 단조 경향은 주 지표에서만 성립하며 지표를 바꾸면 성립하지 않음',
@@ -1065,7 +1065,7 @@ notes(s, '이 슬라이드는 2026-07-30에 정정했습니다. 이전 판은 �
 # ============================================================ S30 고찰 4
 s = slide('고찰 ④ — 방법론적 시사점')
 pts = [('①', '저부하 동작일수록 reserve 설정에 민감',
-        'reserve 점검 없이는 결론이 뒤바뀔 수 있음 (걷기 사례: 효과 −5.6 %p → −1.0 %p)'),
+        'reserve 점검 없이는 결론이 뒤바뀔 수 있음 (걷기 사례: 효과 −5.59 %p → −0.97 %p)'),
        ('②', '지표 선택이 결과 해석을 좌우',
         'ES peak(EMG 문헌 정렬)를 주 지표로, ES mean은 강건성 확인용 보조 지표로 병기'),
        ('③', '동작의 자연스러움 검증이 정량 신뢰도의 전제',
@@ -1115,12 +1115,12 @@ notes(s, '한계를 명확히 하는 것이 결과의 신뢰도를 오히려 높
 # ============================================================ S32 결론
 s = slide('결론')
 con = [('①', 'SMA 허리 보조 슈트(24 N·m)는 허리에 부하가 걸리는 동작에서\n'
-              '척추기립근 부담을 23 ~ 37 % 감소 '
-              '(들기 23 · 나르기 28 · 스툽 33 · 스쿼트 37 %)', GREEN),
+              '척추기립근 부담을 22.5 ~ 37.3 % 감소 '
+              '(들기 22.5 · 나르기 27.7 · 스툽 33.0 · 스쿼트 37.3 %)', GREEN),
        ('②', '감소율은 부하에 반비례 — 부하가 클수록 상대 효과 감소,\n'
               '슈트 설계 사양 결정의 정량 근거 확보', NAVY),
        ('③', '정상 보행에서는 부하 감소가 아니라 재분배 —\n'
-              '총량 −17 %p이나 최대 활성 근육 +21 % (유해 여부 검증 필요)', NAVY)]
+              '총량 −17.4 %p이나 최대 활성 근육 +21.4 % (유해 여부 검증 필요)', NAVY)]
 ty = 1.72
 for num, txt, col in con:
     _, nf = rect(s, M, ty, 0.95, 1.28, fill=col)
