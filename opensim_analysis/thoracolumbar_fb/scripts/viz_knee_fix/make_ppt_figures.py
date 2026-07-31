@@ -50,26 +50,26 @@ def save(fig, name):
 
 
 # ======================================================= 박스 들기 (S19)
-R = '/data/stoop_results/box_stoop_so'
-t, nl, _ = load(f'{R}/B_noload/so_B_noload_StaticOptimization_activation.sto')
-_, off, _ = load(f'{R}/B_off/so_B_off_StaticOptimization_activation.sto')
-_, on, _ = load(f'{R}/B_on/so_B_on_StaticOptimization_activation.sto')
+R = '/data/tight_unified'
+t, off, _ = load(f'{R}/box_off/so_StaticOptimization_activation.sto')
+_, on, _ = load(f'{R}/box_on/so_StaticOptimization_activation.sto')
+nl = None   # 통일 재해석에는 무부하 참조 조건이 없음
 fig, a = plt.subplots(figsize=FIGSIZE)
-a.axvspan(1.9, 5.9, color='#F0C36D', alpha=0.18, label='박스를 든 구간')
-a.plot(t, nl, color=C_NL, lw=2.0, label='무부하 (참조)')
+a.axvspan(2.225, 5.833, color='#F0C36D', alpha=0.18, label='슈트 작동 구간')
 a.plot(t, off, color=C_OFF, lw=3.0, label='박스 20 kg · 슈트 OFF')
 a.plot(t, on, color=C_ON, lw=3.0, label='박스 20 kg · 슈트 ON')
-i = int(np.argmax(np.where((t >= 1.9) & (t <= 5.9), off, -1)))
+_m = (t >= 2.225) & (t <= 5.833)
+i = int(np.argmax(np.where(_m, off, -1)))
 a.plot([t[i], t[i]], [on[i], off[i]], color='k', lw=1.6, ls=':')
-a.annotate('최대 하중 시점\n37.5 % → 28.8 %  ( −23 % )',
-           xy=(t[i], (off[i] + on[i]) / 2), xytext=(4.30, 8.5),
+a.annotate('슈트 작동 구간 평균\n71.0 % → 55.0 %  ( −23 % )',
+           xy=(t[i], (off[i] + on[i]) / 2), xytext=(6.35, 82.0),
            fontsize=14.5, fontweight='bold', color='#0F5C96', ha='center', va='center',
            bbox=dict(boxstyle='round,pad=0.4', fc='white', ec='#0F5C96', lw=1.5),
            arrowprops=dict(arrowstyle='->', color='#0F5C96', lw=1.8))
 a.set_xlabel('시간 (s)'); a.set_ylabel('척추기립근 활성도 ES peak (%)')
 a.set_title('박스 20 kg 들기 — 허리 근육 부담', fontweight='bold', pad=10)
-a.set_ylim(0, 52)
-a.legend(loc='upper left', framealpha=0.95, ncol=2, columnspacing=1.0,
+a.set_ylim(0, 108)
+a.legend(loc='lower left', framealpha=0.95, ncol=1, columnspacing=1.0,
          handlelength=1.5)
 style(a); save(fig, 'fig_box_es.png')
 

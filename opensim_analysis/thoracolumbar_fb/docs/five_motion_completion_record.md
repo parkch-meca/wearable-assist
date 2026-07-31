@@ -1,36 +1,53 @@
 # 5동작 파이프라인 완결 기록
 
-**완결일**: 2026-07-30
+**완결일**: 2026-07-30 (초판) · **2026-07-31 개정** — 5동작 해석 조건 완전 통일 재해석
 **범위**: 맨몸 스쿼트 / 맨몸 스툽 / 박스 들기(20 kg) / 맨몸 보행 / 박스 운반(20 kg)
-**해석**: OpenSim 4.6 Static Optimization, ThoracolumbarFB v2.0 armfix, 슈트 24 N·m 토크 커플
-**논문 초안**: `docs/five_motion_paper_draft.md`
+**해석**: OpenSim 4.6 Static Optimization, 단일 모델 `MaleFullBodyModel_v2.0_OS4_modified_no_coupler_M1scap_armfix` (전체 해시 `dc6c217f8fb6`), 척추 reserve opt 5 N·m, 슈트 24 N·m 토크 커플
+**논문**: `docs/five_motion_paper_draft.md` (초안) · `docs/five_motion_paper.docx` / `.pdf` (완성본, 19쪽 A4)
 **발표자료**: `/data/opensim_results/SMA_suit_5motion_presentation.pptx` (+ `.pdf` 백업)
+
+> ⚠️ **2026-07-31 개정 사유**: 조건 전수 감사에서 동작마다 기저 모델과 reserve 설정이 달랐음을 발견하여
+> 5동작을 완전히 동일한 조건으로 재해석하였다. **초판(2026-07-30)의 수치는 폐기되었다.**
+> 상세는 §1, §5.1, §6 참조.
 
 ---
 
-## 1. 최종 결과표
+## 1. 최종 결과표 (완전 통일 조건)
 
-모든 값은 2026-07-30에 `*_StaticOptimization_activation.sto` 원본에서 재계산·검증함.
-지표는 **ES peak** = 척추기립근 76개(IL / LTpL / LTpT) 중 해당 시점 최대 활성 근육.
+주 지표는 **슈트 작동창 ES peak 평균** — 슈트 토크가 최대치의 90 % 이상인 구간에서
+프레임별 최대 활성 ES 근육 값의 평균. 창은 ON 조건 토크 프로파일로 정의하고 OFF에 동일 적용.
 
-| 동작 | 하중 | 지표 | 대표 시점 / 구간 | OFF (%) | ON (%) | Δ (%p) | Δ (%) |
-|---|---|---|---|---:|---:|---:|---:|
-| 맨몸 스쿼트 | 0 kg | ES peak | 가장 깊이 앉은 시점 (t = 2.03 s) | 18.30 | 9.61 | −8.69 | **−47.5** |
-| 맨몸 스쿼트 | 0 kg | ES peak | 전주기 정점 | 23.11 | 14.45 | −8.66 | **−37.5** |
-| 맨몸 스툽 | 0 kg | ES peak | 최대 굴곡 시점 (t = 2.56 s) | 28.04 | 19.12 | −8.92 | **−31.8** |
-| 맨몸 스툽 | 0 kg | ES peak | 전주기 정점 | 31.90 | 22.96 | −8.94 | **−28.0** |
-| 박스 들기 | 20 kg | ES peak | 최대 하중 시점 (t = 2.80 s) | 37.50 | 28.79 | −8.71 | **−23.2** |
-| 박스 들기 | 20 kg | ES peak | 하중 구간 평균 (1.9–5.9 s) | 33.04 | 25.31 | −7.74 | −23.4 |
-| 맨몸 보행 | 0 kg | ES peak | heel strike | 31.67 | 32.60 | **+0.93** | (+2.9) |
-| 맨몸 보행 | 0 kg | ES peak | mid-stance | 24.08 | 28.34 | **+4.26** | (+17.7) |
-| 맨몸 보행 | 0 kg | ES peak | toe-off / 전주기 | 35.08 | 34.11 | **−0.96** | (−2.7) |
-| 박스 운반 | 20 kg | ES peak | mid-stance | 99.97 | 74.54 | **−25.42** | **−25.4** |
-| 박스 운반 | 20 kg | ES peak | 전주기 (포화로 저평가) | 100.00 | 88.61 | −11.39 | −11.4 |
-| 박스 운반 | 20 kg | ES_mean | 전주기 | 18.94 | 13.76 | −5.18 | **−27.4** |
+| 동작 | 하중 | OFF (%) | ON (%) | Δ (%p) | Δ (%) | 척추 reserve (N·m) |
+|---|---|---:|---:|---:|---:|---:|
+| 맨몸 스쿼트 | 0 kg | 60.37 | 37.88 | -22.49 | **-37.3** | 1.11 |
+| 맨몸 스툽 | 0 kg | 65.30 | 43.74 | -21.56 | **-33.0** | 0.94 |
+| 박스 들기 | 20 kg | 71.02 | 55.03 | -15.99 | **-22.5** | 1.63 |
+| 맨몸 보행 | 0 kg | 22.41 | 27.20 | +4.79 | **+21.4** | 1.01 |
+| 박스 운반 | 20 kg | 90.88 | 65.75 | -25.13 | **-27.6** | 1.70 |
 
-보조 지표 ES_mean(전주기 정점 기준) 상대 감소율: 스쿼트 −36.1 %, 스툽 −27.5 %, 박스 들기 −9.0 %(하중 구간 한정 −28.1 %), 보행 −40.8 %(baseline 3.72 %로 비율 불안정), 운반 −27.4 %.
+**보조 지표 (민감도 분석)**
 
-**핵심 관찰**: 절대 감소량이 스쿼트 −8.69, 스툽 −8.92, 박스 들기 −8.71 %p로 8.7–8.9 %p에 수렴. 고정 24 N·m 보조의 절대 기여는 동작에 무관하게 일정하고, 상대 감소율 차이는 baseline(요구 토크) 차이에서 발생.
+| 동작 | (a) 전주기 peak | (b) 주 지표 | (c) ES mean 창평균 |
+|---|---:|---:|---:|
+| 맨몸 스쿼트 | -35.1 % | **-37.3 %** | -39.0 % |
+| 맨몸 스툽 | -34.2 % | **-33.0 %** | -31.1 % |
+| 박스 들기 | -32.1 % | **-22.5 %** | -34.2 % |
+| 맨몸 보행 | -2.7 % | **+21.4 %** | -11.9 % |
+| 박스 운반 | -11.4 % | **-27.6 %** | -33.3 % |
+
+**부하 순 단조 경향**: (b) 주 지표에서만 성립. (a)·(c)에서는 성립하지 않음.
+→ "단조성으로 슈트 모델이 검증됨"이라는 서술은 폐기.
+
+**⭐ 맨몸 보행은 감소가 아니라 재분배**
+- 총량 −17.38 %p 감소 (감소 37개 / 증가 10개 / 무변화 29개)
+- 최대 활성 근육 +21.4 %, 집중도(peak/mean) 11.68 → 16.10
+- 장늑근(IL) −90.9 % · 최장근 요추부(LTpL) **+28.5 %** · 최장근 흉추부(LTpT) −5.7 %
+- 기전: 보행은 시상면 요구가 작아 24 N·m가 과충족 → IL 비활성화. 그러나 축회전 11.63°·측굴 10.87°의
+  면외 요구가 남아 LTpL_L5로 이전. 스툽은 면외 운동이 0.00°라 재분배 없음, 운반은 20 kg가 지배적이라 보조가 우세.
+- 유해 여부는 본 데이터로 판단 불가 → 실측 EMG 검증 필요
+
+**⭐ 문헌 정합** — 통일 조건 스툽 미착용 ES peak **70.37 %** ↔ Hasenmaier et al. 2026 실측 **69.8 %MVC** (0.6 %p 차)
+표준 reserve 시절 값(31.9 %)은 문헌 범위(40–80 %MVC) 미달 → tight 설정이 옳았다는 독립 근거
 
 ---
 
@@ -50,14 +67,13 @@
 
 | 동작 | 슈트 OFF | 슈트 ON (24 N·m) |
 |---|---|---|
-| 맨몸 스쿼트 | `/data/squat_results/suit_sweep/F0/squat_F0_StaticOptimization_activation.sto` | `.../F200/squat_F200_StaticOptimization_activation.sto` |
-| 맨몸 스툽 | `/data/stoop_results/stoop_v5/so_v5_StaticOptimization_activation.sto` | `/data/stoop_results/suit_sweep_v5/F200/` |
-| 박스 들기 | `/data/stoop_results/box_stoop_so/B_off/so_B_off_StaticOptimization_activation.sto` | `.../B_on/so_B_on_StaticOptimization_activation.sto` |
+| 맨몸 스쿼트 | `/data/tight_unified/squat_off/so_StaticOptimization_activation.sto` | `/data/tight_unified/squat_on/...` |
+| 맨몸 스툽 | `/data/tight_unified/stoop_off/so_StaticOptimization_activation.sto` | `/data/tight_unified/stoop_on/...` |
+| 박스 들기 | `/data/tight_unified/box_off/so_StaticOptimization_activation.sto` | `/data/tight_unified/box_on/...` |
 | 맨몸 보행 | `/data/gait_results/gait_off_tight/so_StaticOptimization_activation.sto` | `/data/gait_results/gait_on_tight/...` |
 | 박스 운반 | `/data/carry_results/carry_off/so_StaticOptimization_activation.sto` | `/data/carry_results/carry_on/...` |
 
-박스 들기에는 무부하 참조 조건 `box_stoop_so/B_noload/` 가 함께 존재한다.
-보행에는 표준 reserve 조건 `gait_off/`, `gait_on/` 이 민감도 비교용으로 보존되어 있다.
+이전 조건의 산출물은 대조용으로 보존되어 있다: 표준 reserve + 개별 기저 모델(`/data/squat_results/`, `/data/stoop_results/`), reserve만 통일한 중간 단계(`/data/tight_rerun/`), 보행 표준 reserve(`/data/gait_results/gait_off|on/`).
 `_force.sto` 는 같은 디렉터리에 병존하며 reserve 점검에 사용한다.
 
 ### 2.3 동영상 (mp4) — 모두 `/data/opensim_results/`
@@ -93,9 +109,13 @@ PowerPoint 임베드용 baseline/yuv420p 변환본과 포스터 프레임: `/dat
 
 | 목적 | 스크립트 |
 |---|---|
-| 스쿼트 SO | `run_squat_so.py` |
-| 박스 들기 SO | `run_box_stoop_so.py` |
-| 박스 들기 분석 | `analyze_box_stoop_so.py` |
+| **5동작 통일 재해석 (현행)** | **`rerun_unified_all.py`** |
+| reserve만 통일한 중간 단계 | `rerun_tight_all.py` |
+| **해석 조건 전수 감사** | **`audit_conditions.py`** |
+| 통일 결과 분석·대조 | `analyze_tight_unified.py` |
+| 보행 재분배 분석 | `analyze_gait_redistribution.py` |
+| (구) 스쿼트 SO | `run_squat_so.py` |
+| (구) 박스 들기 SO | `run_box_stoop_so.py` |
 | 보행 리타겟 | `gen_gait_retarget.py` |
 | 보행 SO (표준 / tight) | `gait_so.py` / `gait_so_tight.py` |
 | 보행 분석 | `analyze_gait_so.py` |
@@ -103,7 +123,9 @@ PowerPoint 임베드용 baseline/yuv420p 변환본과 포스터 프레임: `/dat
 | 운반 SO / 분석 | `carry_so.py` / `carry_analyze.py` |
 | armfix 회귀 검증 | `armfix_regression.py` |
 | M1 견갑 회귀 검증 | `run_m1_regression.py` |
-| 논문 figure 생성 | `make_paper_figures.py` |
+| 논문 figure 3–7 | `make_paper_figures.py` |
+| 논문 figure 1–2 (개념도) | `make_paper_figures12.py` |
+| **논문 완성본 docx/pdf** | **`build_paper_docx.py`** (+ `docx_kit.py`) |
 | 발표자료 생성 | `build_presentation.py` (+ `make_ppt_figures.py`, `make_ppt_keyframes.py`) |
 
 **논문 수치 재검증**: `.sto`에서 전 수치를 재산출하는 검증 스크립트 로직은 `make_paper_figures.py`의 `load()`/ES 정의와 동일하다(ES = `IL_*` + `LTpL*` + `LTpT*`, n = 76).
@@ -127,30 +149,41 @@ python -c "import zipfile;print([n for n in zipfile.ZipFile('deck.pptx').namelis
 5. **전환 구간 촘촘 시퀀스 + 각도 시계열** — 자세 전환 구간은 프레임 간격을 좁혀 시퀀스를 뽑고, 관절 각도 시계열을 함께 확인해야 불연속·역방향 회전을 잡을 수 있다.
 6. **viz-mirror 범위 = 어깨대 전체** — 좌우 대칭 처리는 상완만이 아니라 쇄골·견갑을 포함한 어깨대 전체에 적용한다.
 7. **고활성 동영상 색 대비** — 활성도가 높은 구간이 이어지는 동영상은 windowed clim(하한 > 0)을 써야 색 차이가 보인다.
-8. **발표자료 영상은 baseline/yuv420p 임베드** — `-profile:v baseline -pix_fmt yuv420p -movflags +faststart`로 변환 후 `add_movie(poster_frame_image=...)`로 임베드. 포스터 프레임 없으면 검은 사각형이 된다.
+8. **⭐ 다동작 비교는 조건 통일을 사전에 강제** — 동작을 순차 진행하면 모델·설정이 갈라진다. (i) 해석 조건 매니페스트에 명시하고 실행 스크립트가 이를 참조, (ii) 새 동작 착수 시 `audit_conditions.py`로 기존 동작과의 일치를 자동 점검하고 다른 항목은 '의도된 차이'로 명시 기록해야 통과, (iii) 각 결과 디렉터리에 기저 모델의 reserve 제외 해시를 남긴다.
+9. **⭐ 평가 지표는 결과 확인 전에 사전 정의** — 지표만 바꿔도 감소율이 10 %p 이상, 보행은 부호까지 달라진다. 포화·최대근육 전환 가능성을 사전 점검하고 복수 지표를 병기한다.
+10. **⭐ 병렬 SO는 BLAS 스레드를 1로 제한** — `OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1`. 미설정 시 프로세스마다 9코어를 잡아 스핀락 경합으로 약 1000× 느려진다(19시간에 27 % 진행). 또한 `setsid`로 분리 실행해야 셸 종료에 살아남는다.
+11. **발표자료 영상은 baseline/yuv420p 임베드** — `-profile:v baseline -pix_fmt yuv420p -movflags +faststart`로 변환 후 `add_movie(poster_frame_image=...)`로 임베드. 포스터 프레임 없으면 검은 사각형이 된다.
 
 ---
 
 ## 5. 미해결 / 이월 항목
 
-### 5.1 ⭐ reserve 설정 혼재 (신규 발견, 2026-07-30)
+### 5.1 ✅ [해소됨] reserve 설정 및 기저 모델 혼재
 
-`.osim`과 실행 스크립트를 전수 확인한 결과, tight reserve는 **5동작 전체가 아니라 보행·운반에만** 적용되어 있다.
+**발견 (2026-07-30~31)**: 조건 전수 감사(`audit_conditions.py`)에서 동작마다 조건이 갈라져 있음을 확인하였다.
 
-| 동작 | 척추 reserve `optimal_force` | 실제 흡수 최대 (OFF) |
-|---|---:|---:|
-| 맨몸 스쿼트 | 100 N·m (표준) | 37.9 N·m |
-| 맨몸 스툽 | 100 N·m (표준) | 40.1 N·m |
-| 박스 들기 | 100 N·m (표준) | 58.6 N·m |
-| 맨몸 보행 | **5 N·m (tight)** | 1.0 N·m |
-| 박스 운반 | **5 N·m (tight)** | 1.7 N·m |
+| 항목 | 스쿼트·스툽 | 박스 | 보행·운반 |
+|---|---|---|---|
+| 기저 모델 | `modified` | `M1scap` | `M1scap_armfix` |
+| CoordinateCoupler | 4개 유지 | 0 | 0 |
+| M1 견갑 | 미적용 | 적용 | 적용 |
+| 좌팔 축 수정 | 미적용 | 미적용 | 적용 |
+| 척추 reserve opt | 100 N·m | 100 N·m | 5 N·m |
+| 실제 흡수 척추 reserve | 37.9 N·m | 58.6 N·m | 1.0 / 1.7 N·m |
 
-tight 설정은 보행 해석에서 문제를 발견한 뒤 도입되어 그 이후 해석에만 적용되었다.
+그 밖에 저역통과 필터(합성 −1 vs 실측 6 Hz), 샘플링(26.7~60 Hz), **박스 들기만 지면반력 부재**도 확인되었다.
+앞의 세 항목은 의도된 차이가 아니었고, 뒤의 세 항목은 동작 특성상 의도된 차이이다.
 
-**영향**: 동작 간 **절대** ES 활성도를 직접 비교할 수 없고, 표준 설정 3개 동작의 절대 활성도는 과소추정일 가능성이 높다. 자체 민감도 분석(`docs/suit_sweep_reserve_comparison.md`)은 stoop에서 reserve를 조이면 상대 감소율이 28.12 % → 21.25 %(−6.87 %p)로 이동함을 보고한다. 따라서 **부하–효과 단조 경향은 두 설정이 혼재된 비교**이다.
-각 동작 내부에서는 OFF/ON이 동일 설정이므로 개별 동작의 슈트 효과 방향·존재 여부는 유효하다.
+**조치 (2026-07-31)**: 스쿼트·스툽·박스를 `M1scap_armfix` + tight reserve로 재실행하여 5동작이
+**완전히 동일한 모델 파일(전체 해시 `dc6c217f8fb6`)**을 공유하도록 통일하였다. 척추 reserve 실측값은
+5동작 0.94–1.70 N·m로 균일하다. → **이월 항목 해소.**
 
-**조치 필요**: 전 동작 tight reserve 재해석 후 단조 경향 재확인. (본 완결 시점에는 "새 해석 실행 금지" 지시에 따라 미수행)
+**변화 크기**: 절대 baseline은 크게 이동(스쿼트 +7.7 %p), 주 지표 상대값은 0.6–3.7 %p 이동.
+스쿼트가 회귀 유계(~2 %p)를 넘은 3.7 %p는 쿠플러 제약이 규정된 양팔 전방 85° 자세를 덮어쓰고 있었기
+때문이며(위반량 우 39.6°·좌 130.4°, 스툽은 0.000°), 통일본이 의도한 동작을 정확히 반영한 것이다.
+
+**폐기된 서술**: "절대 감소량 8.7–8.9 %p 일정", "단조성으로 슈트 모델 검증됨", "스쿼트 47 % 감소",
+"정상 보행에 무영향" — 전 문서에서 제거·교체 완료.
 
 ### 5.2 좌측 어깨 자유도
 
@@ -160,7 +193,14 @@ tight 설정은 보행 해석에서 문제를 발견한 뒤 도입되어 그 이
 
 대응 선행 연구(Hasenmaier 2026)가 squat 조건에서 보조 수준 간 유의차를 보고하지 않아 외부 대조가 불가능하다. 본 연구 스쿼트 값(−37.5 ~ −47.5 %)은 5동작 중 감소율이 가장 커 **실측 EMG 검증의 최우선 대상**이다.
 
-### 5.4 기타
+### 5.4 보행 재분배의 유해성 미확인 (신규)
+
+총량은 −17.38 %p 감소하나 최대 활성 근육은 +21.4 % 증가하고 최장근 요추부에 집중된다.
+어느 쪽이 지배적인지 본 데이터로 판단 불가 → **실측 EMG 검증 필요**. 재분배 기전의 해석도
+활성도 패턴과 운동학에서 도출한 것이며 모멘트 암 분해로 직접 확인하지 않았다.
+설계 함의로 **보행 구간 토크 저감·차단 제어**의 검토 필요가 제기되나, 이는 검증된 결론이 아니라 가설이다.
+
+### 5.5 기타
 
 - 성인 남성 단일 체형 — 성별·연령 확장 미수행
 - 보행·운반 GRF는 타 피험자 실측값 (효과 차이는 견고, 절대값 해석 주의)

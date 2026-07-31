@@ -1,6 +1,7 @@
 # Phase 1a — Paper Draft v3 (Phase 1a 단독 Publication, Final)
 
-**Status**: 2026-05-20, v3 — §7.ix 박스 motion 5단계 limitations 정직 확장; §8 Future Work 6개 재구성; §6.6 박스 motion 5개월 학습 가치 신규; References 5개 추가; Step 2 Week 3 재현 검증 수치 반영.  
+**Status**: 2026-07-30, v3.1 — §4.1 Hu et al. 정량 일치 주장 철회(지표 상이), §4.1b Hasenmaier et al. 2026 활성도 기반 대조 신규, §6.5·§7.v 서술 완화, Reference 9b 추가. 원본 백업 `phase1a_paper_draft_v2.md.bak_2026-07-30`.
+**Status (v3)**: 2026-05-20 — §7.ix 박스 motion 5단계 limitations 정직 확장; §8 Future Work 6개 재구성; §6.6 박스 motion 5개월 학습 가치 신규; References 5개 추가; Step 2 Week 3 재현 검증 수치 반영.  
 **Changes from v2**: §7.ix 5-step limitations 전면 재작성 (v3-v11b + Step 2 Week 4-5 MocoTrack 포함); §8 6-item Future Work (Squat Phase 2.A 즉시 next 명확화); §6.6 신규 (5개월 학습 방법론 가치); References Falisse 2019, John 2022 (재확인), Dembia 2020, D'Hondt 2024, Waters 1994 추가 정리.  
 **Step 2 Week 3 재현 검증 반영**: slope 1.158 %/N·m (원본 1.164 Δ 0.5%), @24 N·m 27.79% (원본 27.95%, Δ 0.16 %p), max ΔES 0.41 %p.  
 **All numerical claims** trace to: `results/phase1a_full/`, `results/phase1a_suit_effect/`, `results/phase1a_suit_sweep/`.
@@ -159,21 +160,51 @@ The MocoInverse slope (1.164–1.186 %/N·m) agrees with the SO reference (1.206
 
 ## §4. Literature Comparison
 
-### §4.1 — Hu et al. 2026: Quantitative Agreement
+### §4.1 — Hu et al. 2026: Direction of Effect, Not a Like-for-Like Match
 
-Hu et al. [2026] (VU Amsterdam, n = 8, PMID 39967340) measured ES active moment reduction across 4 assist levels (0%, 30%, 50%, 70% of back muscle moment) during 15 kg lifting using an EMG-driven biomechanical model. Reported ES active moment reductions were **14.9–28.6%** across assist levels, with L5/S1 compression reduction of 5.5–9.3%.
+> **Revision note (2026-07-30)**: This subsection previously claimed quantitative agreement "within 0.6 percentage points" between our ES activation reduction and Hu et al.'s reported values. That comparison was invalid because the two studies report **different physical quantities**. The claim has been withdrawn and replaced with a direction-and-order-of-magnitude comparison. Source abstracts were re-verified verbatim on 2026-07-30.
 
-Our Phase 1a result at 24 N·m (the full SMA suit condition): **28.0–28.5% ES reduction** (ES_mean, Hold and Concentric phases). This matches the upper range of Hu et al. [2026] at their highest assist level within 0.6 percentage points — a level of quantitative agreement consistent with independent replication of the assist effect magnitude using different model types (EMG-driven vs. MocoInverse), different exoskeleton types (rigid active dual-joint vs. SMA fabric), and different motion paradigms (15 kg symmetric lifting vs. 0 kg stoop).
+Hu et al. [2026] (VU Amsterdam, n = 8, PMID 39967340) measured, across 4 assist levels (0%, 30%, 50%, 70%) during a 15 kg free-technique lift using an EMG-driven biomechanical model:
 
-Hu et al. [2026] additionally reported saturation of compression reduction at high assist levels (no further decrease in L5/S1 compression beyond 50% assist), consistent with our observation of recruitment redistribution from IL_R10_r (saturated dominant) to IL_R12 (previously unsaturated) at 24 N·m. These findings from independent methodologies pointing to the same mechanism strengthen the mechanistic interpretation.
+- **back muscle active moment** reduction of **14.9–28.6%**
+- time-averaged **L5/S1 compressive force** reduction of **5.5–9.3%**
 
-**Table 3 — Cross-Study ES Reduction Comparison**
+Both are **joint-load quantities (moment, compressive force)**, not muscle activation. Our Phase 1a result at 24 N·m — **28.0–28.5% ES activation reduction** (ES_mean, Hold and Concentric phases) — is a muscle activation quantity and therefore **cannot be equated numerically** with either of Hu et al.'s figures. The numerical proximity of 28.0–28.5% to Hu et al.'s upper moment-reduction bound of 28.6% is coincidental and is not evidence of cross-study replication.
 
-| Study | Method | Task | Exo type | ES Reduction |
-|---|---|---|---|---:|
-| Hu et al. 2026 | EMG-driven model | 15 kg lifting | Rigid active (dual-joint) | 14.9–28.6% |
-| **This study (Phase 1a)** | **MocoInverse** | **Stoop (0 kg)** | **SMA fabric** | **28.0–28.5%** |
-| Yan et al. 2024 | OpenSim SO | Squat + stoop (6/10 kg) | Soft exosuit (cable) | Reported by muscle force |
+What the two studies do share is the **direction and order of magnitude** of the assistive effect: a thoracic-pelvic extension assist in the 20–25 N·m range produces a reduction on the order of tens of percent in the trunk-extensor load measure, whether that measure is activation (this study) or active moment (Hu et al.).
+
+Hu et al. [2026] additionally reported saturation of compression reduction at high assist levels (no further decrease in L5/S1 compression beyond 50% assist). This is qualitatively consistent with our observation of recruitment redistribution from IL_R10_r (saturated dominant) to IL_R12 (previously unsaturated) at 24 N·m — a mechanistic parallel rather than a numerical one.
+
+A like-for-like activation comparison is available from Hasenmaier et al. [2026] and is given in §4.1b.
+
+**Table 3 — Cross-Study Comparison (note: reported quantities differ by study)**
+
+| Study | Method | Task | Exo type | Reported quantity | Reduction |
+|---|---|---|---|---|---:|
+| Hu et al. 2026 | EMG-driven model | 15 kg lifting (free tech.) | Rigid active (dual-joint) | Back muscle **active moment** | 14.9–28.6% |
+| Hu et al. 2026 | EMG-driven model | 15 kg lifting (free tech.) | Rigid active (dual-joint) | **L5/S1 compressive force** | 5.5–9.3% |
+| Hasenmaier et al. 2026 | Surface EMG | Stoop lift | Apogee active | **ES activity (%MVC)** | 69.8 → 42.4 %MVC (rel. **39.3%**) |
+| **This study (Phase 1a)** | **MocoInverse** | **Stoop (0 kg)** | **SMA fabric** | **ES activation** | **28.0–28.5%** |
+| Yan et al. 2024 | OpenSim SO | Squat + stoop (6/10 kg) | Soft exosuit (cable) | Muscle force | Reported by muscle force |
+
+Only the Hasenmaier row and this study report the same class of quantity (muscle activity), so only that pair supports a direct comparison.
+
+### §4.1b — Hasenmaier et al. 2026: Activation-Based Comparison
+
+Hasenmaier et al. [2026] (*Front Bioeng Biotechnol*, doi:10.3389/fbioe.2026.1631785) measured surface EMG of the erector spinae in 17 healthy young adults (MES analysed for 16) performing symmetric stoop and squat lifts with the Apogee active exoskeleton (German Bionic Systems). Verbatim reported values for the **stoop** technique:
+
+| Condition | Mean MES activity |
+|---|---:|
+| 1) without exoskeleton | 69.8 %MVC |
+| 2) with exoskeleton, 0/0% support | 59.2 %MVC |
+| 3) with exoskeleton, 50/20% support | 50.7 %MVC |
+| 4) with exoskeleton, 100/60% support | **42.4 %MVC** |
+
+The paper summarises the effect across both techniques as "a reduction of MES activity of about 10%–27% MVC". **This range is expressed in absolute %MVC points, not as a relative reduction** — a distinction that must be preserved when comparing against simulation output. Converting condition 1) → 4) to a relative reduction gives **−39.3%** for the stoop technique.
+
+Our Phase 1a stoop result (**−28.0 to −28.5%** ES activation, ES_mean) is therefore **smaller than** the only directly comparable activation-based literature value (−39.3%). Because the assistive torque specifications differ (24 N·m constant here vs. the Apogee 100/60% setting), this is not a strict numerical equivalence; it does, however, indicate that the present simulation does **not overestimate** the suit effect relative to measured EMG.
+
+For the **squat** technique, Hasenmaier et al. report "there were no significant results between the individual levels", so no relative reduction can be cited for that condition.
 
 ### §4.2 — Yan et al. 2024: Method Comparison
 
@@ -245,7 +276,7 @@ Anthropometric scaling of the ThoracolumbarFB model to female caregiving anthrop
 
 ### §6.5 — Simulation Validity and Path to Experimental Validation
 
-The quantitative agreement between our Phase 1a MocoInverse results (28.0–28.5% ES reduction, R² = 1.000) and the Hu et al. [2026] EMG-driven experimental results (14.9–28.6%) — achieved with completely different methods, different exoskeleton types, and different loading conditions — provides independent cross-study external validity for the ES reduction magnitude. The additional agreement between MocoInverse and our own SO reference within 3.5% (slope 1.164 vs. 1.206 %/N·m) provides internal cross-method validity. A Step 2 independent replication run (Week 3) reproduced the slope at 1.158 %/N·m (Δ 0.5% relative) and the 24 N·m reduction at 27.79% (Δ 0.16 %p), with max ES activation difference of 0.41 %p across all five suit conditions — a 12× margin against the Hicks et al. [2015] 5 %p criterion.
+External validity rests on two comparisons of different strength (see §4.1, §4.1b). Against Hu et al. [2026] the shared finding is **directional**: both studies show a trunk-extensor load reduction on the order of tens of percent under a comparable thoracic-pelvic assist, but the reported quantities differ (activation here vs. active moment and compressive force there) and cannot be equated numerically. Against Hasenmaier et al. [2026], which reports the same class of quantity (surface EMG activity), our stoop reduction (28.0–28.5%) is **smaller than** the measured value (69.8 → 42.4 %MVC, relative −39.3%), indicating that the present simulation does not overestimate the suit effect. Neither comparison substitutes for direct EMG validation of this suit on this task. The agreement between MocoInverse and our own SO reference within 3.5% (slope 1.164 vs. 1.206 %/N·m) provides internal cross-method validity only. A Step 2 independent replication run (Week 3) reproduced the slope at 1.158 %/N·m (Δ 0.5% relative) and the 24 N·m reduction at 27.79% (Δ 0.16 %p), with max ES activation difference of 0.41 %p across all five suit conditions — a 12× margin against the Hicks et al. [2015] 5 %p criterion.
 
 The pathway from simulation to experimental validation follows the precedent of Yan et al. [2024]: EMG cross-correlation (target r > 0.80) for the stoop task, followed by suit-on vs. suit-off EMG comparison. This is planned as Phase 1c after hardware maturation.
 
@@ -287,7 +318,7 @@ Leg muscles are excluded from Phase 1a, so hip, knee, and ankle moments are abso
 
 ### §7.v — EMG Validation Pending
 
-The recruitment hierarchy (IL_R10 >> LTpL_L5 >> IL_R11 >> IL_R12), the phasic-versus-tonic activation distinction, and the 29.4 %p eccentric/concentric asymmetry require cross-validation against subject EMG before being reported as definitive physiological findings rather than optimization predictions. The quantitative agreement with Hu et al. [2026] provides external structural validity but does not substitute for direct EMG comparison.
+The recruitment hierarchy (IL_R10 >> LTpL_L5 >> IL_R11 >> IL_R12), the phasic-versus-tonic activation distinction, and the 29.4 %p eccentric/concentric asymmetry require cross-validation against subject EMG before being reported as definitive physiological findings rather than optimization predictions. The agreement with Hu et al. [2026] is directional only — that study reports active moment and compressive force, not activation (§4.1). The one activation-based comparison available (Hasenmaier et al. [2026], stoop, relative −39.3%) places our result on the conservative side but was obtained with a different actuator and assist specification. Neither substitutes for direct EMG comparison of this suit on this task.
 
 ### §7.vi — Coupler-Removed Model Scope
 
@@ -435,6 +466,8 @@ The scope of this publication is intentionally bounded to stoop lift Phase 1a. B
 ### Exosuit / Exoskeleton Comparison Studies
 
 9. Hu, F., Brouwer, N. P., Tabasi, A., Kingma, I., van Dijk, W., Mohamed Refai, M. I., ... & van Dieën, J. H. (2026). Influence of varied assistance levels provided by a dual-joint active back-support exoskeleton on spinal musculoskeletal loading and kinematics during lifting. *Ergonomics*, 69(3), 453–465. PMID: 39967340.
+
+9b. Hasenmaier, J., Siebert, T., Mayer, D., & Stutzig, N. (2026). Effects of an active exoskeleton on the muscle activity of the erector spinae and biceps femoris muscles during lifting with symmetric stoop and squat technique. *Frontiers in Bioengineering and Biotechnology*. DOI: 10.3389/fbioe.2026.1631785 [activation-based (%MVC) comparison, cited in §4.1b, §6.5, §7.v; abstract verified verbatim 2026-07-30]
 
 10. John, C. T., Jackson, R. W., Bhatt, N., Garg, A., Shoemaker, M., Whitmer, B., & Fregly, B. J. (2022). Feasibility of using MocoTrack to analyze wearable lower-limb exoskeleton assistance during walking. *Computer Methods in Biomechanics and Biomedical Engineering*, 25(13), 1482–1493. DOI: 10.1080/10255842.2022.2040546
 

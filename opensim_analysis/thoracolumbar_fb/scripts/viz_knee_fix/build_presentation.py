@@ -640,25 +640,22 @@ notes(s, '부하가 다른 5개 동작을 고른 이유는, 슈트가 모든 상
 
 # ============================================================ S14 스쿼트 결과
 s = slide('동작 ① 맨몸 스쿼트 — 결과')
-headline(s, [('최대 47 % ↓', True, GREEN, 40),
-             ('        ', False, WHITE, 40),
-             ('부하 정점 37 % ↓', True, GREEN, 40)],
-         top=1.48, size=40, h=0.75)
+headline(s, [('37 % ↓', True, GREEN, 44)], top=1.45, size=44, h=0.78)
 _, f1 = rect(s, M, 2.30, 5.55, 3.68, fill=BOXBG)
 para(f1, '동작 설명', size=18, bold=True, color=NAVY, first=True, space_after=10)
 bullets(f1, ['발바닥 전체 접지 · 무릎만 굽혀 하강',
              '요추 중립 유지 (스툽과의 결정적 차이)',
              '양팔 전방'], size=16, sa=9)
-para(f1, '가장 깊이 앉은 순간', size=14, color=DARK, space_before=8, space_after=1)
-para(f1, '    ES peak  18.3 % → 9.6 %  =  −47 %', size=15, bold=True,
+para(f1, '슈트 작동 구간 평균 (주 지표)', size=14, color=DARK, space_before=8, space_after=1)
+para(f1, '    ES peak  60.4 % → 37.9 %  =  −37 %', size=15, bold=True,
      color=GREEN, space_after=6)
-para(f1, '부하 정점', size=14, color=DARK, space_after=1)
-para(f1, '    ES peak  23.1 % → 14.5 %  =  −37 %', size=15, bold=True,
+para(f1, '전주기 정점', size=14, color=DARK, space_after=1)
+para(f1, '    ES peak  71.7 % → 46.6 %  =  −35 %', size=15, bold=True,
      color=GREEN, space_after=0)
 pic(s, f'{MEDIA}/kf_squat.png', 6.35, 2.30, 6.4, 3.68)
 _, cf = rect(s, M, 6.04, SW - 2 * M, 0.80, fill=BOXBG2, line=GREEN)
-para(cf, '시점에 따라 감소율이 다름 — 가장 깊이 앉은 순간 47 %, 허리에 힘이 가장 많이 드는 순간 37 %. '
-         '두 값을 함께 표기하여 정직하게 전달',
+para(cf, '5동작 완전 통일 조건(동일 모델 + tight reserve) 재해석 값. 이전 47 % 수치는 '
+         'reserve·모델 조건이 달랐던 값으로 폐기',
      size=15, color=DARK, align=PP_ALIGN.CENTER, first=True, space_after=0)
 cf.vertical_anchor = MSO_ANCHOR.MIDDLE
 notes(s, '47%와 37%는 서로 다른 시점의 값입니다. 하나만 쓰면 오해가 생기므로 '
@@ -674,22 +671,21 @@ notes(s, '영상을 클릭하면 재생됩니다. 좌우 허리 부위 색 차�
 
 # ============================================================ S16 스툽 결과
 s = slide('동작 ② 맨몸 스툽 — 결과')
-headline(s, [('32 % ↓', True, GREEN, 44)], top=1.45, size=44, h=0.78)
+headline(s, [('33 % ↓', True, GREEN, 44)], top=1.45, size=44, h=0.78)
 _, f1 = rect(s, M, 2.30, 5.55, 3.68, fill=BOXBG)
 para(f1, '동작 설명', size=18, bold=True, color=NAVY, first=True, space_after=10)
 bullets(f1, ['고관절 힌지 중심 · 무릎은 편 채 굽힘',
              '요추 굴곡 동반 → ES 부하가 스쿼트보다 큼',
              '산업 현장에서 가장 빈번한 위험 자세'], size=16, sa=9)
-para(f1, '최대 굴곡 시점', size=14, color=DARK, space_before=8, space_after=1)
-para(f1, '    ES peak  28.0 % → 19.1 %  =  −32 %', size=15, bold=True,
+para(f1, '슈트 작동 구간 평균 (주 지표)', size=14, color=DARK, space_before=8, space_after=1)
+para(f1, '    ES peak  65.3 % → 43.7 %  =  −33 %', size=15, bold=True,
      color=GREEN, space_after=6)
 para(f1, '전주기 정점', size=14, color=DARK, space_after=1)
-para(f1, '    ES peak  31.9 % → 23.0 %  =  −28 %', size=15, bold=True,
+para(f1, '    ES peak  70.4 % → 46.3 %  =  −34 %', size=15, bold=True,
      color=GREEN, space_after=0)
 pic(s, f'{MEDIA}/kf_stoop.png', 6.35, 2.30, 6.4, 3.68)
 _, cf = rect(s, M, 6.04, SW - 2 * M, 0.80, fill=BOXBG2, line=GREEN)
-para(cf, '같은 맨몸 동작이지만 스쿼트(47 %)보다 감소율이 작음 — 허리 부하 자체가 크기 때문에, '
-         '동일한 24 N·m 보조의 상대 비중이 감소',
+para(cf, '⭐ 미착용 70.4 %는 선행 실측 EMG(69.8 %MVC)와 0.6 %p 차이 — 모델 신뢰도의 직접 근거',
      size=15, color=DARK, align=PP_ALIGN.CENTER, first=True, space_after=0)
 cf.vertical_anchor = MSO_ANCHOR.MIDDLE
 notes(s, '여기서 이미 부하가 클수록 상대 감소율이 작아지는 경향이 보입니다. '
@@ -746,20 +742,20 @@ notes(s, '이 슬라이드는 학회에서 질문이 나올 만한 부분입니�
 # ============================================================ S19 박스 결과
 s = slide('동작 ③ 박스 들기 — 결과')
 headline(s, [('23 % ↓', True, GREEN, 44),
-             ('     ES peak  37.5 %  →  28.8 %', False, DARK, 22)],
+             ('     ES peak  71.0 %  →  55.0 %', False, DARK, 22)],
          top=1.45, size=44, h=0.78)
 _, f1 = rect(s, M, 2.35, 5.55, 3.45, fill=BOXBG)
 para(f1, '조건', size=18, bold=True, color=NAVY, first=True, space_after=10)
 bullets(f1, ['박스 20 kg, 테이블 높이 30 cm, 박스 30 cm',
              '파지점 약 45 cm, 자연 스툽 자세',
-             '하중 구간 평균 −23.4 %  (ES mean 기준 −28.1 %)'], size=16, sa=10)
-para(f1, '박스 하중 효과 (최대 하중 시점)', size=14, color=DARK,
+             '슈트 작동 구간(2.2–5.8 s) 평균'], size=16, sa=10)
+para(f1, '주 지표 (슈트 작동 구간 평균)', size=14, color=DARK,
      space_before=8, space_after=1)
-para(f1, '    무부하 26.4 % → 박스 37.5 %  =  +42 %', size=15, bold=True,
-     color=RED, space_after=0)
+para(f1, '    ES peak  71.0 % → 55.0 %  =  −22.5 %', size=15, bold=True,
+     color=GREEN, space_after=0)
 pic(s, f'{MEDIA}/fig_box_es.png', 6.35, 2.35, 6.4, 3.45)
 _, cf = rect(s, M, 5.92, SW - 2 * M, 0.85, fill=BOXBG2, line=GREEN)
-para(cf, '맨몸 스툽(32 %)보다 감소율이 작음 — 20 kg 하중이 더해져 허리 부하가 커진 만큼, '
+para(cf, '맨몸 스툽(33 %)보다 감소율이 작음 — 20 kg 하중이 더해져 허리 부하가 커진 만큼, '
          '고정된 24 N·m 보조의 비중이 줄어든 결과',
      size=15, color=DARK, align=PP_ALIGN.CENTER, first=True, space_after=0)
 cf.vertical_anchor = MSO_ANCHOR.MIDDLE
@@ -776,28 +772,31 @@ notes(s, '박스를 잡고 들어올리는 구간에서 좌우 색 차이가 가
 
 # ============================================================ S21 걷기 결과
 s = slide('동작 ④ 맨몸 걷기 — 결과')
-headline(s, [('거의 변화 없음', True, GRAY, 40),
-             ('     구간별 |ΔES| ≤ 4.3 %p', False, DARK, 22)],
+headline(s, [('감소가 아니라 ', False, DARK, 34), ('재분배', True, RED, 40)],
          top=1.45, size=40, h=0.78)
 _, f1 = rect(s, M, 2.35, 5.55, 3.45, fill=BOXBG)
 para(f1, '조건', size=18, bold=True, color=NAVY, first=True, space_after=8)
 bullets(f1, ['실측 보행 데이터 리타겟 + 실측 지면반력',
              '좌우 팔 교대 스윙 구현'], size=16, sa=8)
-para(f1, '구간별 ΔES (ON − OFF)', size=15, bold=True, color=NAVY,
+para(f1, '총량은 줄고 최대 근육은 늘어남', size=15, bold=True, color=NAVY,
      space_before=6, space_after=6)
-for t_, v_ in [('heel strike', '+0.9 %p'), ('mid-stance', '+4.3 %p'),
-               ('toe-off', '−1.0 %p')]:
-    rich(f1, [('    ' + t_ + '  ', False, DARK, 15), (v_, True, GRAY, 15)],
-         space_after=4)
-pic(s, f'{MEDIA}/fig_gait_es.png', 6.35, 2.35, 6.4, 3.45)
+for t_, v_, c_ in [('76근육 평균', '−11.9 %', GREEN),
+                   ('최대 활성 근육', '+21.4 %', RED),
+                   ('장늑근(IL) 24개', '−90.9 %', GREEN),
+                   ('최장근 요추부(LTpL)', '+28.5 %', RED)]:
+    rich(f1, [('    ' + t_ + '   ', False, DARK, 14), (v_, True, c_, 15)],
+         space_after=3)
+pic(s, '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/docs/images/'
+    'paper_five_motion/fig7_gait_redistribution.png', 6.35, 2.42, 6.4, 3.30)
 _, cf = rect(s, M, 5.88, SW - 2 * M, 0.92, fill=BOXBG2, line=GREEN)
-rich(cf, [('⭐  들기용 슈트는 정상 보행을 보조하지도, 방해하지도 않음.  ', True, GREEN, 16),
-          ('"필요할 때만 작동하고 일상 동작은 거스르지 않는다"는 실사용 근거',
+rich(cf, [('⭐  부하가 준 것이 아니라 옮겨간 것', True, RED, 16),
+          (' — 총량 −17.4 %p이나 최심부 요추근에 집중. 유해 여부는 실측 EMG 검증 필요',
            False, DARK, 15)],
      align=PP_ALIGN.CENTER, first=True, space_after=0)
 cf.vertical_anchor = MSO_ANCHOR.MIDDLE
-notes(s, '이 결과는 효과가 없다는 부정적 결과가 아니라, 착용 안전성 측면의 '
-         '긍정적 근거로 해석해야 합니다.')
+notes(s, '이전 판에서는 무영향이라고 말씀드렸는데, 조건을 통일해 다시 보니 '
+         '부하가 줄어든 게 아니라 근육 사이에서 옮겨간 것이었습니다. 총량은 줄지만 '
+         '가장 많이 쓰는 근육의 부담은 오히려 늘어납니다. 유해한지는 실측으로 확인해야 합니다.')
 
 # ============================================================ S22 걷기 reserve
 s = slide('동작 ④ 걷기 — 해석 지표의 함정',
@@ -805,7 +804,8 @@ s = slide('동작 ④ 걷기 — 해석 지표의 함정',
 hdr = ['', '표준 reserve', '정확 reserve (tight)']
 rows = [('spine reserve 최대', '16.8 N·m', '1.0 N·m'),
         ('걷기 ES peak (슈트 OFF)', '11 %', '35 %'),
-        ('슈트 효과 (전주기 기준)', '−5.6 %p  ("보조")', '−1.0 %p  (무영향)')]
+        ('슈트 효과 (전주기 기준)', '−5.6 %p  ("보조")', '−1.0 %p'),
+        ('스툽 미착용 ES peak', '31.9 % (문헌 미달)', '70.4 % (문헌 69.8 %)')]
 cw3 = [4.5, 3.9, 3.9]
 x0 = CX - sum(cw3) / 2
 ty = 2.05
@@ -833,8 +833,9 @@ para(wf, '※ 위 값은 보행 전주기 기준. 구간별로는 +0.9 ~ +4.3 %p
          '어느 쪽이든 크기는 들기 동작(23~47 %)에 비해 무시할 수준.',
      size=14.5, color=GRAY, space_after=6)
 rich(wf, [('→  저부하 동작일수록 reserve 설정에 민감.', True, RED, 17)], space_after=4)
-para(wf, '※ tight 설정은 이 문제를 발견한 뒤 해석한 보행·운반에 적용. 스쿼트·스툽·박스 들기는 '
-         '표준 설정으로 해석되어 절대 활성도의 동작 간 직접 비교는 제한됨(한계에 명시).',
+para(wf, '※ 이후 5동작 전체를 동일 모델·동일 tight 설정으로 재해석하여 조건을 통일함. '
+         'tight 조건의 스툽 미착용 70.4 %는 선행 실측 EMG 69.8 %MVC와 0.6 %p 차이로, '
+         'tight 설정이 옳았다는 독립 근거.',
      size=13.5, color=GRAY, space_after=0)
 notes(s, '방법론적으로 가장 중요한 발견 중 하나입니다. 저부하 조건에서 '
          'reserve를 점검하지 않으면 잘못된 결론에 도달할 수 있습니다.')
@@ -846,7 +847,7 @@ movie(s, 'gait', boxw=8.9, boxh=4.05, top=1.72)
 _, cf = rect(s, 1.6, 5.86, SW - 3.2, 0.80, fill=BOXBG, line=GRAY)
 para(cf, '왼쪽 = 슈트 없음   |   오른쪽 = 슈트 착용', size=15, bold=True,
      color=NAVY, align=PP_ALIGN.CENTER, first=True, space_after=3)
-para(cf, '좌우 색이 거의 같음  =  슈트가 보행에 영향을 주지 않음  (정직한 시각화)',
+para(cf, '좌우 색이 비슷 — 총량은 줄지만 최대 활성 근육은 오히려 증가 (재분배)',
      size=15, color=DARK, align=PP_ALIGN.CENTER, space_after=0)
 cf.vertical_anchor = MSO_ANCHOR.MIDDLE
 caption(s, '※ 영상 내 22 % / 27 %는 그 순간의 순시값(구간 대표값과 정의가 다름). '
@@ -899,7 +900,7 @@ headline(s, [('슈트는 척추에 부하가 있을 때만 작동한다', True, 
          top=1.42, size=27, h=0.52, align=PP_ALIGN.LEFT)
 cd = CategoryChartData()
 cd.categories = ['맨몸 걷기', '박스 들기', '박스 나르기', '맨몸 스툽', '맨몸 스쿼트']
-cd.add_series('ES 감소율 (%)', (0, 23, 25, 32, 47))
+cd.add_series('ES 감소율 (%)', (0, 22.5, 27.6, 33.0, 37.3))
 gf = s.shapes.add_chart(XL_CHART_TYPE.BAR_CLUSTERED, I(0.7), I(2.02),
                         I(SW - 1.4), I(3.62), cd)
 ch = gf.chart
@@ -925,7 +926,7 @@ for i, c in enumerate(BARCOL):
     pt.format.fill.fore_color.rgb = c
     pt.format.line.fill.background()
 va = ch.value_axis
-va.maximum_scale = 55.0
+va.maximum_scale = 45.0
 va.minimum_scale = 0.0
 va.has_major_gridlines = True
 va.tick_labels.font.size = Pt(13)
@@ -943,12 +944,11 @@ ca.tick_labels.font.name = FONT
 ca.tick_labels.font.color.rgb = DARK
 ca.has_major_gridlines = False
 _, cf = rect(s, M, 5.70, SW - 2 * M, 1.14, fill=BOXBG2, line=GREEN)
-para(cf, '허리에 부하가 걸리는 4개 동작에서는 부하가 클수록 상대 감소율이 작아짐 '
-         '(스쿼트 47 → 스툽 32 → 나르기 25 → 들기 23 %). 걷기는 애초에 허리 신전 요구가 '
-         '거의 없어 보조할 대상 자체가 없음(0 %).',
+para(cf, '부하가 걸리는 4개 동작에서 부하가 클수록 상대 감소율이 작아짐 '
+         '(스쿼트 37 → 스툽 33 → 나르기 28 → 들기 23 %).',
      size=15, color=DARK, align=PP_ALIGN.CENTER, first=True, space_after=3)
-para(cf, '※ 걷기 0 %는 전주기 ΔES −1.0 %p(≈ −3 %)를 반올림한 표기 — '
-         '구간별로 부호가 갈릴 만큼 작다는 의미(S21·S22)',
+para(cf, '※ 걷기는 감소가 아니라 재분배이므로 0으로 표기(S21).  '
+         '⚠ 이 단조 경향은 주 지표에서만 성립하며 지표를 바꾸면 성립하지 않음',
      size=12.5, color=GRAY, align=PP_ALIGN.CENTER, space_after=0)
 cf.vertical_anchor = MSO_ANCHOR.MIDDLE
 notes(s, '이 한 장이 본 연구의 핵심 결과입니다. 위에서 아래로 부하가 커지는 순서인데, '
@@ -1115,12 +1115,12 @@ notes(s, '한계를 명확히 하는 것이 결과의 신뢰도를 오히려 높
 # ============================================================ S32 결론
 s = slide('결론')
 con = [('①', 'SMA 허리 보조 슈트(24 N·m)는 허리에 부하가 걸리는 동작에서\n'
-              '척추기립근 부담을 23 ~ 47 % 감소 '
-              '(스툽·들기·나르기 23~32 %, 맨몸 스쿼트 최대 47 %)', GREEN),
+              '척추기립근 부담을 23 ~ 37 % 감소 '
+              '(들기 23 · 나르기 28 · 스툽 33 · 스쿼트 37 %)', GREEN),
        ('②', '감소율은 부하에 반비례 — 부하가 클수록 상대 효과 감소,\n'
               '슈트 설계 사양 결정의 정량 근거 확보', NAVY),
-       ('③', '정상 보행에는 거의 영향 없음 — 필요 시 작동하고\n'
-              '일상 동작을 방해하지 않는 선택적 보조 특성 확인', NAVY)]
+       ('③', '정상 보행에서는 부하 감소가 아니라 재분배 —\n'
+              '총량 −17 %p이나 최대 활성 근육 +21 % (유해 여부 검증 필요)', NAVY)]
 ty = 1.72
 for num, txt, col in con:
     _, nf = rect(s, M, ty, 0.95, 1.28, fill=col)
