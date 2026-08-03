@@ -8,7 +8,10 @@
 
 ■ 처치
   척추 tight 와 동일하게 optimal_force 를 5 로 낮춘다. 하드 캡이 아니라 비용 기반 억제다.
-  그 외 조건(운동학·외력·reserve·SO 옵션)은 romfix_unified 와 완전히 동일하게 둔다.
+  ★ 내장 액추에이터만 조이면 부하가 reserve_shoulder_* (opt=100) 로 옮겨갈 뿐이다
+    (1차 실행에서 실측 확인: 액추에이터 3.545 → 0.006 N·m, reserve 0.035 → 2.557 N·m).
+    따라서 어깨 자유도의 **reserve 도 함께** opt=5 로 조인다 — 척추와 동일 기준.
+  그 외 조건(운동학·외력·척추 reserve·SO 옵션)은 romfix_unified 와 완전히 동일하게 둔다.
 
 ■ 판정
   tight 후 어깨 굴곡 토크에서 근육이 차지하는 비율이 90 % 이상이면 삼각근 측정 가능.
@@ -27,6 +30,8 @@ OUT.mkdir(exist_ok=True)
 SHOULDER_ACT = ('shoulder_elv_r_actuator', 'shoulder_elv_l_actuator',
                 'shoulder_rot_r_actuator', 'shoulder_rot_l_actuator',
                 'elv_angle_r_actuator', 'elv_angle_l_actuator')
+SHOULDER_RES = tuple(f'reserve_{c}_{s}' for c in ('shoulder_elv', 'shoulder_rot', 'elv_angle')
+                     for s in ('r', 'l'))
 OPT_TIGHT = 5.0
 JOBS = ('box_off', 'box_on')
 
@@ -38,7 +43,7 @@ def tighten(src_model, dst):
     n = 0
     for i in range(fs.getSize()):
         a = osim.CoordinateActuator.safeDownCast(fs.get(i))
-        if a and a.getName() in SHOULDER_ACT:
+        if a and a.getName() in (SHOULDER_ACT + SHOULDER_RES):
             a.setOptimalForce(OPT_TIGHT)
             a.setMinControl(-50.0)
             a.setMaxControl(50.0)
@@ -74,7 +79,7 @@ def run(tag):
     tool.setExternalLoadsFileName(str(ext_dst))
     setup = str(d / 'setup.xml')
     tool.printToXML(setup)
-    print(f'[{tag}] 어깨 액추에이터 {n}개 opt={OPT_TIGHT} | '
+    print(f'[{tag}] 어깨 액추에이터+reserve {n}개 opt={OPT_TIGHT} | '
           f'mot={Path(tool.getCoordinatesFileName()).name}', flush=True)
     t0 = time.time()
     ok = osim.AnalyzeTool(setup).run()

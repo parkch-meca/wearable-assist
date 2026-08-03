@@ -71,7 +71,7 @@ ax.text(0.5, -0.30, 'k=2/5/8 전부 관찰 범위 재현 → PASS.  k=20 은 고
 CASES = [('waist_stoop', '허리 (스툽, 고관절 포함)', '요추 굴곡 합 (°)'),
          ('shoulder_flex', '어깨 굴곡', '어깨 굴곡 (°)'),
          ('elbow_flex', '팔꿈치 굴곡', '팔꿈치 굴곡 (°)')]
-fig.text(0.372, 0.906, '(2) 부위별 관절각 vs 경로 신장 ΔL — SMA 수축분 / 탄성 신장분 (k=5)',
+fig.text(0.372, 0.917, '(2) 부위별 관절각 vs 경로 신장 ΔL — SMA 수축분 / 탄성 신장분 (k=5)',
          fontsize=10.4, fontweight='bold')
 inner = gs[0, 1:].subgridspec(1, 3, wspace=0.36)
 for j, (key, lab, xl) in enumerate(CASES):
@@ -91,7 +91,8 @@ for j, (key, lab, xl) in enumerate(CASES):
         a.text(min(sl), a.get_ylim()[1] * 0.92, f' 이완 {min(sl):.0f}°',
                fontsize=7.6, color=RED)
     a.axhline(0, color='0.5', lw=.8)
-    a.set_title(lab, fontsize=9.0, pad=4)
+    a.text(0.5, 1.02, lab, transform=a.transAxes, ha='center', va='bottom',
+           fontsize=8.8, fontweight='bold')
     a.set_xlabel(xl, fontsize=8.4)
     if j == 0:
         a.set_ylabel('길이 (mm)', fontsize=8.6)
@@ -150,30 +151,42 @@ ax.text(0.5, 0.06, '24 N·m 를 맞추려면 의복이 등에서 12 cm 이상 �
         bbox=dict(boxstyle='round,pad=0.3', fc='white', ec='0.6', lw=0.7))
 
 # ── (6) 어깨 reserve before/after ──────────────────────────────
-ax = fig.add_subplot(gs[2, 1]); panel(ax, '(6) 어깨 액추에이터 흡수 토크 — tight 전/후')
+ax = fig.add_subplot(gs[2, 1]); panel(ax, '(6) 어깨 굴곡축 토크 분해 — tight 전/후 (박스 들기)')
 if SH:
-    labs = [r['label'] for r in SH['bars']]
-    b = [r['before'] for r in SH['bars']]
-    a_ = [r['after'] for r in SH['bars']]
-    x = np.arange(len(labs))
-    ax.bar(x - 0.2, b, 0.4, color='0.62', ec='k', lw=.7, label='tight 전 (opt=1000)')
-    ax.bar(x + 0.2, a_, 0.4, color=GREEN, ec='k', lw=.7, label='tight 후 (opt=5)')
-    for xi, v in zip(x - 0.2, b):
-        ax.text(xi, v * 1.05 + 0.05, f'{v:.2f}', ha='center', fontsize=7.8)
-    for xi, v in zip(x + 0.2, a_):
-        ax.text(xi, v * 1.05 + 0.05, f'{v:.2f}', ha='center', fontsize=7.8, fontweight='bold')
-    ax.set_xticks(x); ax.set_xticklabels(labs, fontsize=8.0, rotation=12, ha='right')
+    keys = list(SH['before'].keys())
+    lab = [k.replace('shoulder_elv_', '어깨거상 ') for k in keys]
+    x = np.arange(len(keys))
+    for j, (tag, D, off, hatch) in enumerate((('tight 전', SH['before'], -0.2, None),
+                                              ('tight 후', SH['after'], 0.2, '//'))):
+        mus = [abs(D[k]['muscle']) for k in keys]
+        act = [abs(D[k]['actuator']) for k in keys]
+        res = [abs(D[k]['reserve']) for k in keys]
+        ax.bar(x + off, mus, 0.36, color=GREEN if j else '#a8d5b5', ec='k', lw=.7,
+               label='근육' if j == 0 else None, hatch=hatch)
+        ax.bar(x + off, act, 0.36, bottom=mus, color=RED, ec='k', lw=.7,
+               label='내장 액추에이터' if j == 0 else None, hatch=hatch)
+        ax.bar(x + off, res, 0.36, bottom=np.array(mus) + np.array(act),
+               color='#f0a04b', ec='k', lw=.7, label='reserve' if j == 0 else None, hatch=hatch)
+        for xi, k in zip(x + off, keys):
+            tot = D[k]['total']
+            ax.text(xi, tot + 0.12, f"{D[k]['muscle_share']:.0f} %", ha='center',
+                    fontsize=8.2, fontweight='bold',
+                    color=GREEN if D[k]['muscle_share'] >= 90 else RED)
+            ax.text(xi, -0.42, tag, ha='center', fontsize=7.4, color='0.35')
+    ax.set_xticks(x); ax.set_xticklabels(lab, fontsize=8.6)
     ax.set_ylabel('최대 |토크| (N·m)', fontsize=8.8)
-    ax.legend(fontsize=7.8); ax.grid(axis='y', alpha=.3)
-    ax.text(0.5, -0.36, SH['verdict'], transform=ax.transAxes, ha='center',
-            fontsize=8.4, fontweight='bold', color=SH.get('color', '0.2'), linespacing=1.4)
+    ax.set_ylim(-0.75, 5.0)
+    ax.legend(fontsize=7.6, loc='upper center', ncol=3, framealpha=.95)
+    ax.grid(axis='y', alpha=.3)
+    ax.text(0.5, 0.44, f"막대 위 % = 근육 비중\n{SH['verdict']}", transform=ax.transAxes,
+            ha='center', fontsize=8.4, fontweight='bold', color=SH.get('color', '0.2'),
+            linespacing=1.5,
+            bbox=dict(boxstyle='round,pad=0.35', fc='white', ec=SH.get('color', '0.4'), lw=1.1))
 else:
     ax.axis('off'); ax.set_xlim(0, 1); ax.set_ylim(0, 1)
     ax.add_patch(FancyBboxPatch((0.02, 0.28), 0.96, 0.44, boxstyle='round,pad=0.02',
                                 fc='#f4f4f4', ec='0.5', lw=1.2))
-    ax.text(0.5, 0.5, '어깨 tight 재실행 진행 중\n\n'
-            '모델 내장 CoordinateActuator 6개\nopt 1000 → 5 로 조임',
-            ha='center', va='center', fontsize=9.4, linespacing=1.7)
+    ax.text(0.5, 0.5, '어깨 tight 재실행 진행 중', ha='center', va='center', fontsize=9.4)
 
 # ── (7) 진행 상태 ──────────────────────────────────────────────
 ax = fig.add_subplot(gs[2, 2]); panel(ax, '(7) 지시 항목별 상태')
@@ -185,8 +198,9 @@ ITEMS = [('■0 실행 전 검증', '완료', GREEN),
          ('■2(5) 24 N·m 대조', '⚠ 유의차 → 중단', RED),
          ('■2(7) 설계 레버 비교', '보류', ORANGE),
          ('■3 부착점 후보', '완료', GREEN),
-         ('■4 어깨 tight 점검', '진행 중' if not SH else '완료',
-          ORANGE if not SH else GREEN),
+         ('■4 어깨 tight 점검', '진행 중' if not SH else
+          ('PASS' if SH.get('pass_') else 'FAIL'),
+          ORANGE if not SH else (GREEN if SH.get('pass_') else RED)),
          ('■5 팔꿈치 근육 추가', '보류', ORANGE)]
 y = 0.96
 for lab, st, c in ITEMS:
