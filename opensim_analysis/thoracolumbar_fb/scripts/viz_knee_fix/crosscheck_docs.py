@@ -17,6 +17,7 @@ ROOT = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb'
 DOCS = {
     '논문 초안(md)': f'{ROOT}/docs/five_motion_paper_draft.md',
     '완결기록(md)': f'{ROOT}/docs/five_motion_completion_record.md',
+    '인계문서(md)': f'{ROOT}/docs/HANDOVER_multijoint.md',
     '논문 docx': f'{ROOT}/docs/five_motion_paper.docx',
     '논문 pdf': f'{ROOT}/docs/five_motion_paper.pdf',
     '발표자료 pptx': '/data/opensim_results/SMA_suit_5motion_presentation.pptx',
