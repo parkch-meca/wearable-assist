@@ -26,8 +26,8 @@ CM = 1 / 2.54
 OUT = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/docs/images/paper_five_motion'
 os.makedirs(OUT, exist_ok=True)
 
-OFF = '/data/gait_results/gait_off_tight/so_StaticOptimization_activation.sto'
-ON = '/data/gait_results/gait_on_tight/so_StaticOptimization_activation.sto'
+OFF = '/data/romfix_unified/gait_off/so_StaticOptimization_activation.sto'
+ON = '/data/romfix_unified/gait_on/so_StaticOptimization_activation.sto'
 PHASES = [('heel strike', 0.62, 0.74), ('mid-stance', 0.94, 1.06),
           ('toe-off', 1.30, 1.42)]
 
@@ -123,7 +123,7 @@ res = dict(peak_cycle_off=float(pk_o.mean()), peak_cycle_on=float(pk_n.mean()),
            net=float(d.sum()), groups=grp_stat, phases=ph_rows,
            top_dec=[(E[i], float(d[i])) for i in order[:5]],
            top_inc=[(E[i], float(d[i])) for i in order[::-1][:5]])
-json.dump(res, open('/data/tight_unified/gait_redistribution.json', 'w'),
+json.dump(res, open('/data/romfix_unified/gait_redistribution.json', 'w'),
           ensure_ascii=False, indent=1)
 
 # ================= 그림 =================
@@ -166,4 +166,4 @@ fig.tight_layout(pad=0.9)
 fig.savefig(f'{OUT}/fig7_gait_redistribution.png', dpi=450)
 plt.close(fig)
 print('\nSAVED', f'{OUT}/fig7_gait_redistribution.png')
-print('SAVED /data/tight_unified/gait_redistribution.json')
+print('SAVED /data/romfix_unified/gait_redistribution.json')

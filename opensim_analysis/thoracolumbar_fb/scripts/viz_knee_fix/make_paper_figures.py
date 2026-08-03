@@ -5,7 +5,9 @@
   * 축 라벨 >= 9 pt (단칼럼 폭 88 mm 기준)
   * 새 해석 실행 없음. 모든 값은 기존 SO .sto에서 재계산.
 """
-import numpy as np, opensim as osim, os
+import numpy as np, opensim as osim, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import paper_numbers as pn      # 표기 규칙·경로 단일 소스
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
@@ -49,14 +51,8 @@ def style(ax):
         ax.spines[s].set_visible(False)
 
 
-# 5동작 완전 통일 결과 (동일 모델 dc6c217f8fb6 + tight reserve)
-R = {k: (f'/data/tight_unified/{k}_off/so_StaticOptimization_activation.sto',
-         f'/data/tight_unified/{k}_on/so_StaticOptimization_activation.sto')
-     for k in ('squat', 'stoop', 'box')}
-R['gait'] = ('/data/gait_results/gait_off_tight/so_StaticOptimization_activation.sto',
-             '/data/gait_results/gait_on_tight/so_StaticOptimization_activation.sto')
-R['carry'] = ('/data/carry_results/carry_off/so_StaticOptimization_activation.sto',
-              '/data/carry_results/carry_on/so_StaticOptimization_activation.sto')
+# 5동작 완전 통일 결과 (armfix_rom 모델 + tight reserve + 좌팔 수정 운동학)
+R = dict(pn.STO)          # 경로 단일 소스 — paper_numbers.STO
 TITLE = {'squat': '(a) 맨몸 스쿼트 (0 kg)', 'stoop': '(b) 맨몸 스툽 (0 kg)',
          'box': '(c) 박스 들기 (20 kg)', 'gait': '(d) 맨몸 보행 (0 kg)',
          'carry': '(e) 박스 운반 (20 kg)'}
@@ -147,9 +143,7 @@ fig.savefig(f'{OUT}/fig4_es_timeseries.png', dpi=400)
 plt.close(fig); print('fig4')
 
 # ============================================ Figure 5 — 부하–효과 패턴
-import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import paper_numbers as pn      # 표기 규칙 단일 소스 (본문·표와 동일 값 보장)
 _LB = {'squat': '맨몸 스쿼트\n0 kg', 'stoop': '맨몸 스툽\n0 kg',
        'box': '박스 들기\n20 kg', 'gait': '맨몸 보행\n0 kg', 'carry': '박스 운반\n20 kg'}
 _v = {k: pn.metric(k, 'b')['rel'] for k in _LB}

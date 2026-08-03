@@ -16,8 +16,19 @@
 """
 import json
 
-U = json.load(open('/data/tight_unified/unified_numbers.json'))
-G = json.load(open('/data/tight_unified/gait_redistribution.json'))
+# ── 결과 루트 (단일 소스) ────────────────────────────────────────
+# 2026-08-03: ROM 부호 수정 + 좌팔 운동학 수정 재실행본으로 교체.
+#   이전: /data/tight_unified (좌팔 미러 오류가 스툽·박스 들기·박스 운반에 남아 있던 상태)
+#   스쿼트·보행은 운동학이 바뀌지 않았고 재실행 결과가 이전과 일치함(회귀 검증).
+RESULTS = '/data/romfix_unified'
+
+# .sto 경로 — figure 생성 스크립트도 이 표를 쓴다 (경로가 갈라지지 않게)
+STO = {k: (f'{RESULTS}/{k}_off/so_StaticOptimization_activation.sto',
+           f'{RESULTS}/{k}_on/so_StaticOptimization_activation.sto')
+       for k in ('squat', 'stoop', 'box', 'gait', 'carry')}
+
+U = json.load(open(f'{RESULTS}/unified_numbers.json'))
+G = json.load(open(f'{RESULTS}/gait_redistribution.json'))
 
 NAME = {'squat': '맨몸 스쿼트', 'stoop': '맨몸 스툽', 'box': '박스 들기',
         'gait': '맨몸 보행', 'carry': '박스 운반'}

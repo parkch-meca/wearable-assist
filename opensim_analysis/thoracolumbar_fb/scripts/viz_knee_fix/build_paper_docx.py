@@ -2,7 +2,7 @@
 
 pandoc 미설치이고 캡션 위치·네이티브 표·한글 폰트·줄간격·페이지 번호를 결정적으로
 제어해야 하므로 python-docx 직접 생성 방식을 사용한다 (docx_kit.py).
-수치는 /data/tight_unified/unified_numbers.json 및 gait_redistribution.json에서 읽는다.
+수치는 paper_numbers 모듈(단일 소스)을 경유해서만 읽는다. 직접 JSON 로드 금지.
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -16,8 +16,10 @@ docx_kit.LINE = 1.6           # 160 % — 그림 배치 여지 확보 (규격 16
 
 FIG = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/docs/images/paper_five_motion'
 OUT = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/docs/five_motion_paper.docx'
-U = json.load(open('/data/tight_unified/unified_numbers.json'))
-G = json.load(open('/data/tight_unified/gait_redistribution.json'))
+U, G = pn.U, pn.G          # 경로 분기 방지 — paper_numbers 가 유일한 로더
+MA = {k: pn.metric(k, 'a') for k in pn.ORDER}   # A/B/C 는 이미 쓰이는 이름
+MB = {k: pn.metric(k, 'b') for k in pn.ORDER}
+MC = {k: pn.metric(k, 'c') for k in pn.ORDER}
 NM = {'squat': '맨몸 스쿼트', 'stoop': '맨몸 스툽', 'box': '박스 들기',
       'gait': '맨몸 보행', 'carry': '박스 운반'}
 LD = {'squat': '0 kg', 'stoop': '0 kg', 'box': '20 kg', 'gait': '0 kg', 'carry': '20 kg'}
@@ -57,14 +59,15 @@ para(doc, '작업 관련 요통을 줄이기 위한 능동 웨어러블 슈트�
           '동일한 모델 파일과 해석 설정을 공유하며, 이는 파일 해시로 검증하였다.',
      size=9.5, line=1.55, align=A.JUSTIFY, indent_first=0.5, space_after=5)
 para(doc, '주 지표로 슈트 토크가 최대치의 90 % 이상인 구간의 ES peak 평균을 사전 정의하였다. 그 결과 '
-          '맨몸 스쿼트 −37.3 %, 맨몸 스툽 −33.0 %, 박스 운반 −27.7 %, 박스 들기 −22.5 %의 활성도 감소가 '
+          f'맨몸 스쿼트 {MB["squat"]["rel_s"]} %, 맨몸 스툽 {MB["stoop"]["rel_s"]} %, '
+          f'박스 들기 {MB["box"]["rel_s"]} %, 박스 운반 {MB["carry"]["rel_s"]} %의 활성도 감소가 '
           '관찰되었다. 부하가 클수록 상대 감소율이 작아지는 경향이 나타났으나, 이 경향은 지표 정의에 따라 '
           '성립하지 않았다. 맨몸 보행에서는 감소가 아니라 재분배가 관찰되었다. 전체 활성도 총량은 '
           '−17.4 %p 감소하는 반면 최대 활성 근육은 +21.4 % 증가하며, 장늑근(Iliocostalis)이 −90.9 % '
           '비활성화되는 대신 최장근 요추부(Longissimus pars lumborum)가 +28.5 % 증가하였다. 방법론적으로, '
           '저부하 동작에서 reserve 액추에이터 설정이 근육 활성도를 3.2배 과소평가하고 슈트 효과의 존재 '
-          '여부까지 왜곡할 수 있음을 제시하였다. 통일 조건의 스툽 미착용 활성도(70.4 %)는 선행 실측 '
-          'EMG 연구의 69.8 %MVC와 0.6 %p 차이로 정합하였다.',
+          '여부까지 왜곡할 수 있음을 제시하였다. 통일 조건의 스툽 미착용 활성도(68.9 %)는 선행 실측 '
+          'EMG 연구의 69.8 %MVC와 0.9 %p 차이로 정합하였다.',
      size=9.5, line=1.55, align=A.JUSTIFY, indent_first=0.5, space_after=6)
 rich_para(doc, [('핵심어: ', {'bold': True}),
                 ('웨어러블 로봇, 형상기억합금, 척추기립근, 근골격계 시뮬레이션, '
@@ -85,16 +88,17 @@ para(doc, 'Active wearable suits for occupational low-back pain are being develo
      size=9.5, line=1.55, align=A.JUSTIFY, indent_first=0.5, space_after=5,
      name='Times New Roman', latin='Times New Roman')
 para(doc, 'The primary outcome, pre-specified as the mean ES peak activation over the window in which '
-          'suit torque exceeds 90 % of its maximum, decreased by 37.3 % (squat), 33.0 % (stoop), '
-          '27.7 % (carrying) and 22.5 % (lifting). A monotonic decrease of relative benefit with '
-          'increasing load was observed for the primary outcome but did not hold for alternative '
-          'outcome definitions. During level walking the suit redistributed rather than reduced load: '
+          f'suit torque exceeds 90 % of its maximum, decreased by {abs(MB["squat"]["rel"]):.1f} % (squat), '
+          f'{abs(MB["stoop"]["rel"]):.1f} % (stoop), {abs(MB["box"]["rel"]):.1f} % (lifting) and '
+          f'{abs(MB["carry"]["rel"]):.1f} % (carrying). A monotonic decrease of relative benefit with '
+          'increasing load was observed for the primary outcome and for the whole-cycle peak, but '
+          'not for the mean-activation definition. During level walking the suit redistributed rather than reduced load: '
           'total activation fell by 17.4 percentage points while the most-active muscle rose by 21.4 %, '
           'with iliocostalis nearly silenced (−90.9 %) and longissimus pars lumborum increased '
           '(+28.5 %). Methodologically, standard reserve-actuator settings underestimated ES activation '
           'by a factor of 3.2 in low-load tasks and produced a spurious assistive effect. Under the '
-          'unified settings, unassisted stoop activation (70.4 %) agreed with a published surface-EMG '
-          'value of 69.8 % MVC to within 0.6 percentage points.',
+          'unified settings, unassisted stoop activation (68.9 %) agreed with a published surface-EMG '
+          'value of 69.8 % MVC to within 0.9 percentage points.',
      size=9.5, line=1.55, align=A.JUSTIFY, indent_first=0.5, space_after=6,
      name='Times New Roman', latin='Times New Roman')
 rich_para(doc, [('Keywords: ', {'bold': True, 'latin': 'Times New Roman'}),
@@ -162,8 +166,8 @@ para(doc, 'ThoracolumbarFB v2.0 Full Body 모델[3]을 OpenSim 4.6에서 사용�
      indent_first=0.5, align=A.JUSTIFY)
 add_table(doc, 'Table 1. 5동작 해석 조건 동일성 검증.',
           ['항목', '5동작 공통값', '검증'],
-          [['모델 파일 전체 해시', 'dc6c217f8fb6', '완전 동일'],
-           ['기저 모델 해시 (reserve 제외)', 'f6d1966849ab', '완전 동일'],
+          [['모델 파일 전체 해시', 'ca12f321326e', '완전 동일'],
+           ['기저 모델 해시 (reserve 제외)', 'e5bb8ab98934', '완전 동일'],
            ['좌표 수 / 근육 수 / reserve 수', '169 / 620 / 169', '동일'],
            ['흉쇄관절 2-DOF (M1 견갑)', '적용', '동일'],
            ['CoordinateCouplerConstraint', '0개 (제거)', '동일'],
@@ -323,7 +327,7 @@ add_figure(doc, f'{FIG}/fig4_es_timeseries.png',
 heading(doc, '3.2 부하–효과 관계', 2)
 para(doc, '허리에 신전 부하가 걸리는 4개 동작을 외부 하중 순으로 정렬하면, 주 지표에서 상대 감소율이 '
           '부하가 클수록 작아지는 경향이 관찰된다(Figure 5). 동일한 20 kg 하중을 갖는 두 동작(운반 '
-          '−27.7 %, 들기 −22.5 %)이 5.2 %p 차이로 근접하여, 자세 유형이 달라도 부하가 같으면 상대 '
+          f'{MB["box"]["rel_s"]} %, 운반 {MB["carry"]["rel_s"]} %)이 0.6 %p 차이로 거의 일치하여, 자세 유형이 달라도 부하가 같으면 상대 '
           '효과가 유사함을 시사한다. 다만 이 경향은 주 지표에서만 성립하며 보조 지표에서는 성립하지 '
           '않는다(3.5절). 따라서 부하–효과 단조성을 본 연구의 확립된 결과로 제시하지 않으며, 모델 검증 '
           '근거로도 사용하지 않는다.', indent_first=0.5, align=A.JUSTIFY)
@@ -333,10 +337,11 @@ add_figure(doc, f'{FIG}/fig5_load_effect_pattern.png',
            width_cm=12.5)
 
 heading(doc, '3.3 절대 활성도 수준', 2)
-para(doc, '통일 조건에서 슈트 미착용 시 ES peak 최대값은 스쿼트 71.7 %, 스툽 70.4 %, 박스 들기 83.0 %, '
+para(doc, '통일 조건에서 슈트 미착용 시 ES peak 최대값은 스쿼트 71.7 %, 스툽 68.9 %, 박스 들기 100.0 %(포화), '
           '운반 100 %(포화), 보행 35.1 %였다. 표면 EMG 문헌이 들기 작업에서 보고하는 40–80 %MVC 범위와 '
-          '부합하며, 특히 스툽 70.4 %는 선행 실측 연구[1]가 외골격 미착용 조건에서 측정한 69.8 %MVC와 '
-          '0.6 %p 차이로 근접한다(4절).', indent_first=0.5, align=A.JUSTIFY)
+          '부합하며, 특히 스툽 68.9 %는 선행 실측 연구[1]가 외골격 미착용 조건에서 측정한 69.8 %MVC와 '
+          '0.9 %p 차이로 근접한다(4절). 20 kg 두 동작은 미착용 정점이 상한에 도달하므로 절대 부담은 '
+          '보고값 이상이다(6절).', indent_first=0.5, align=A.JUSTIFY)
 
 heading(doc, '3.4 맨몸 보행 — 감소가 아니라 재분배', 2)
 para(doc, f"주 지표에서 보행의 ES peak는 {pn.metric('gait','b')['off_s']} → "
@@ -397,10 +402,11 @@ add_table(doc, 'Table 9. 지표 3종 전 동작 대조. 괄호 안은 상대 변
            for k in pn.ORDER]
           + [['부하 순 단조 경향\n(부하 있는 4개 동작 기준)', '—', '성립하지 않음', '**성립**', '성립하지 않음']],
           widths=[2.6, 1.5, 3.9, 4.5, 3.9], size=8.6)
-para(doc, '지표 간 편차의 원인은 각 지표의 정의에서 설명된다. 박스 운반의 (a) −11.4 %는 슈트 미착용에서 '
+para(doc, f'지표 간 편차의 원인은 각 지표의 정의에서 설명된다. 박스 운반의 (a) {MA["carry"]["rel_s"]} %는 슈트 미착용에서 '
           '최대 활성 근육이 100 %에 도달하여 더 이상 커질 수 없기 때문이며, 정점값이 실제 요구를 '
-          '반영하지 못해 효과가 저평가된다. 창 평균 지표에서는 −27.7 %로 회복된다. 박스 들기의 (a) '
-          '−32.1 %와 (b) −22.5 % 차이는 동일한 24 N·m가 걸린 구간 안에서도 슈트 효과가 −9 %에서 −34 %'
+          f'반영하지 못해 효과가 저평가된다. 창 평균 지표에서는 {MB["carry"]["rel_s"]} %로 회복된다. '
+          f'박스 들기도 미착용 정점이 {MA["box"]["off_s"]} %로 같은 성질을 갖는다. 박스 운반의 (a) '
+          f'{MA["carry"]["rel_s"]} %와 (c) {MC["carry"]["rel_s"]} % 차이는 22.6 %p에 달하는데, 정점은 포화로 눌리고 평균은 '
           '까지 변동하기 때문이며, 최대 활성 근육이 시점마다 바뀌는 데서 비롯된다(활성도 90 % 이상 '
           '프레임은 0개로 포화가 아니다). (c)는 76개 중 다수가 비활성이어서 평균이 희석되며, 보행에서 '
           '이 성질이 극단적으로 나타나 미착용 baseline이 1.92 %에 불과하고 상대 변화율이 불안정해진다.',
@@ -424,7 +430,7 @@ para(doc, '표준 설정에서는 reserve가 척추 신전 부하를 근육 대�
           '과소평가하였다. 더 중요하게는 reserve가 흡수하는 부하량이 슈트 착용 시 함께 감소하면서 '
           '실재하지 않는 보조 효과 −5.6 %p를 만들어냈다. 또한 표준 설정에서는 스쿼트·스툽·박스의 절대 '
           '활성도가 각각 23.1 / 31.9 / 37.5 %로 EMG 문헌 범위에 크게 미달했으나, tight 설정에서 '
-          '71.7 / 70.4 / 83.0 %로 문헌 범위에 진입하였다. 저부하 동작을 해석할 때는 reserve 크기와 '
+          '71.7 / 68.9 / 100.0 %로 문헌 범위 이상으로 올라왔다. 저부하 동작을 해석할 때는 reserve 크기와 '
           '실제 활성도를 반드시 점검해야 하며, 점검 없이는 결론의 부호까지 뒤바뀔 수 있다. '
           'reserve 설정에 따른 차이를 Table 10과 Figure 7에 보인다.',
      indent_first=0.5, align=A.JUSTIFY)
@@ -443,10 +449,10 @@ para(doc, 'Hasenmaier 등[1]은 건강한 젊은 성인 17명(근전도 분석 1
           '포인트 감소이며 상대 감소율이 아니다. 미착용에서 최대 보조까지의 상대 감소율은 −39.3 %이다. '
           'squat 기법에 대해서는 보조 수준 간 유의차가 없다고 보고하여 상대 감소율을 인용할 수 없다.',
      indent_first=0.5, align=A.JUSTIFY)
-para(doc, '본 연구의 통일 조건 스툽 미착용 ES peak 최대값은 70.37 %로 Hasenmaier 등의 69.8 %MVC와 '
-          '0.6 %p 차이이다. 표준 reserve 조건의 값(31.9 %)은 문헌 범위에 크게 미달했으므로, 이 정합은 '
-          'tight reserve 설정의 타당성을 뒷받침하는 독립적 근거이다. 슈트 효과는 본 연구 −33.0 %(주 '
-          '지표) 또는 −34.2 %(전주기 peak)로 Hasenmaier 등의 −39.3 %보다 작아, 본 시뮬레이션이 슈트 '
+para(doc, f'본 연구의 통일 조건 스툽 미착용 ES peak 최대값은 {MA["stoop"]["off_s"]} %로 Hasenmaier 등의 69.8 %MVC와 '
+          '0.9 %p 차이이다. 표준 reserve 조건의 값(31.9 %)은 문헌 범위에 크게 미달했으므로, 이 정합은 '
+          f'tight reserve 설정의 타당성을 뒷받침하는 독립적 근거이다. 슈트 효과는 본 연구 {MB["stoop"]["rel_s"]} %(주 '
+          f'지표) 또는 {MA["stoop"]["rel_s"]} %(전주기 peak)로 Hasenmaier 등의 −39.3 %보다 작아, 본 시뮬레이션이 슈트 '
           '효과를 과대평가하지 않았음을 시사한다. 다만 본 연구의 ES peak는 76개 근육 중 최대값이고 '
           'Hasenmaier 등의 값은 표면 전극이 포착하는 표층 근육의 %MVC이므로, 근육 선정 범위와 정규화 '
           '기준이 다르다. 위 정합은 엄밀한 등치가 아니라 크기 수준의 대조로 해석해야 하며, 보조 토크 '
@@ -459,8 +465,8 @@ para(doc, 'Hu 등[2]은 8명을 대상으로 15 kg 자유 기법 들기에서 �
      indent_first=0.5, align=A.JUSTIFY)
 add_table(doc, 'Table 11. 선행 연구 대조. 보고 지표가 연구마다 다름에 유의.',
           ['출처', '지표', '조건', '보고값', '본 연구 대응값'],
-          [['Hasenmaier 2026', 'ES 활성도 (%MVC)', 'stoop, 미착용', '69.8', '스툽 OFF 70.37 % (정합)'],
-           ['Hasenmaier 2026', 'ES 활성도', 'stoop, 100/60 % 보조', '42.4 (상대 −39.3 %)', '스툽 −33.0 % (더 보수적)'],
+          [['Hasenmaier 2026', 'ES 활성도 (%MVC)', 'stoop, 미착용', '69.8', f'스툽 OFF {MA["stoop"]["off_s"]} % (정합)'],
+           ['Hasenmaier 2026', 'ES 활성도', 'stoop, 100/60 % 보조', '42.4 (상대 −39.3 %)', f'스툽 {MB["stoop"]["rel_s"]} % (더 보수적)'],
            ['Hasenmaier 2026', 'ES 활성도', 'squat', '수준 간 유의차 없음', '스쿼트 −37.3 % — 대조 불가'],
            ['Hu 2026', '등 근육 능동 모멘트', '15 kg 들기', '−14.9 ~ −28.6 %', '지표 상이 — 방향성만 대조'],
            ['Hu 2026', 'L5/S1 압축력', '15 kg 들기', '−5.5 ~ −9.3 %', '본 연구 미산출']],
@@ -484,7 +490,7 @@ para(doc, '조건 통일 과정에서 절대 활성도는 조건에 민감하고
           '반드시 병기해야 하며, 조건이 다른 연구 간 절대값 비교는 신중해야 한다. 상대 지표는 조건 '
           '변화에 더 견고하나 지표 정의 자체에는 민감하다.', indent_first=0.5, align=A.JUSTIFY)
 heading(doc, '5.3 선택적 보조와 상시 구동의 트레이드오프', 2)
-para(doc, '맨몸 보행과 박스 운반은 운동학이 유사하고 하중만 다르다. 운반에서는 −27.7 %의 감소가 '
+para(doc, f'맨몸 보행과 박스 운반은 운동학이 유사하고 하중만 다르다. 운반에서는 {MB["carry"]["rel_s"]} %의 감소가 '
           '나타나지만 보행에서는 총량 감소와 함께 최대 활성 근육의 증가라는 재분배가 나타난다. SMA '
           '액추에이터는 가열–냉각을 반복하는 On/Off 구동보다 50 ℃를 유지하는 상시 구동이 잠열 재투입을 '
           '피할 수 있어 에너지 효율이 약 13배 높다. 그러나 보행 중 상시 신전 토크가 부하를 줄이는 대신 '
@@ -529,7 +535,8 @@ for t in ['실측 근전도 검증 — 특히 스쿼트 조건과 보행 재분�
 heading(doc, '8. 결론', 1)
 for i, t in enumerate([
     'SMA 직물 근육 기반 허리 보조 슈트(24 N·m)는 5동작 완전 통일 조건에서 척추기립근 peak 활성도(슈트 '
-    '작동창 평균)를 맨몸 스쿼트 −37.3 %, 맨몸 스툽 −33.0 %, 박스 운반 −27.7 %, 박스 들기 −22.5 % '
+    f'작동창 평균)를 맨몸 스쿼트 {MB["squat"]["rel_s"]} %, 맨몸 스툽 {MB["stoop"]["rel_s"]} %, '
+    f'박스 들기 {MB["box"]["rel_s"]} %, 박스 운반 {MB["carry"]["rel_s"]} % '
     '변화시켰다.',
     '주 지표에서는 부하가 클수록 상대 감소율이 작아지는 경향이 관찰되나 이 경향은 지표 간 견고하지 '
     '않다. 지표 정의만 바꾸어도 개별 동작 감소율이 10 %p 이상 달라지므로, 지표 정의는 결론을 좌우하는 '
@@ -539,7 +546,7 @@ for i, t in enumerate([
     '여부는 실측 검증이 필요하다.',
     '방법론적으로, 저부하 동작 해석에서 reserve 설정이 근육 활성도를 3.2배 과소평가하고 슈트 효과의 '
     '존재 여부까지 왜곡할 수 있음을 제시하였다.',
-    '통일 조건의 절대 활성도(스툽 미착용 70.4 %)가 실측 근전도 문헌(69.8 %MVC)과 0.6 %p 차이로 '
+    '통일 조건의 절대 활성도(스툽 미착용 68.9 %)가 실측 근전도 문헌(69.8 %MVC)과 0.9 %p 차이로 '
     '정합하며, 슈트 효과는 실측치보다 보수적이다.']):
     para(doc, f'({i+1}) ' + t, align=A.JUSTIFY, space_after=4)
 
