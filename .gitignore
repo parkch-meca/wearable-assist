@@ -56,3 +56,7 @@ opensim_analysis/*/docs/images/**/*_stage[0-9]_hand_box.png
 
 # 빌드 중간 산출
 .toc_pages.json
+
+# 슈트 사양 PDF 의 300 dpi 렌더본 — 원본 PDF 에서 언제든 재생성 가능 (21 MB)
+#   재생성: pdftoppm -png -r 300 "docs/refs/복합관절 근력보조 슈트 구성.pdf" docs/refs/pdf_pages/page
+docs/refs/pdf_pages/
