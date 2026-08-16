@@ -15,6 +15,7 @@
 이 모듈이 반환하는 값만 사용할 것. 직접 반올림하지 말 것.
 """
 import json
+import os as _os
 
 # ── 결과 루트 (단일 소스) ────────────────────────────────────────
 # 2026-08-03: ROM 부호 수정 + 좌팔 운동학 수정 재실행본으로 교체.
@@ -103,6 +104,44 @@ for v in RES_SENS.values():
     v['dpp'] = _r2(v['on'] - v['off'])
     v['dpp_s'] = fmt(v['dpp'], 2, signed=True)
 RES_RATIO = round(RES_SENS['tight']['off'] / RES_SENS['std']['off'], 1)   # 3.2
+
+
+# ══════════════════════════════════════════════════════════════════
+# 복합관절 연구 — 슈트 기하 재산출 (L-01 (C) 병기 확정, 2026-08-16)
+#
+# 5동작 논문의 24 N·m 는 "설계 목표 조건"이고, 아래는 "현 하드웨어 조건"이다.
+# 두 조건은 토크를 독립변수로 둔 용량–반응 곡선 위의 두 지점이며,
+# 어느 한쪽이 다른 쪽을 무효화하지 않는다. 자세한 근거는
+# docs/KNOWN_LIMITATIONS.md L-01 참조.
+# ══════════════════════════════════════════════════════════════════
+SUIT_DESIGN_TORQUE = 24.0            # N·m — 설계 목표 조건 (200 N × 0.12 m 가정)
+SUIT_DESIGN_MA = 120.0               # mm  — 그 가정이 요구하는 모멘트 암
+SUIT_HW_MA = (79.0, 89.0)            # mm  — 재산출 모멘트 암 (요추 5레벨)
+SUIT_HW_TORQUE = (15.7, 17.8)        # N·m — 현 하드웨어 조건 (양측 합)
+SUIT_HW_TORQUE_MID = 16.5            # N·m — 중앙값
+ES_MAX_MA = 77.0                     # mm  — 같은 모델 ES 근속 최대 모멘트 암
+
+_S16 = '/data/suit_16Nm/results.json'
+SUIT16 = json.load(open(_S16)) if _os.path.exists(_S16) else None
+
+
+def suit_condition(which):
+    """'design' | 'hw' → (토크 N·m, 모멘트암 mm, 설명)."""
+    if which == 'design':
+        return SUIT_DESIGN_TORQUE, SUIT_DESIGN_MA, '설계 목표 조건'
+    return SUIT_HW_TORQUE_MID, sum(SUIT_HW_MA) / 2, '현 하드웨어 조건'
+
+
+def suit16(key):
+    """16 N·m 실검증·설계 레버 결과. key ∈ {ref24, path16, couple16, leverA/B/C}."""
+    if SUIT16 is None:
+        raise RuntimeError('16 N·m 실검증 결과가 아직 없다 — run_suit16.py 실행 필요')
+    d = SUIT16[key]
+    if key == 'ref24':
+        return dict(off=_r2(d['off']), on=_r2(d['on']), eff=d['eff'],
+                    torque=d['torque'], label='설계 목표 조건 24 N·m')
+    return dict(off=_r2(d['off']), on=_r2(d['on']), eff=d['eff'],
+                torque=d['torque'], label=d['label'])
 
 
 if __name__ == '__main__':
