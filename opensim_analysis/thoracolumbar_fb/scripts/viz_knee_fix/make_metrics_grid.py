@@ -63,7 +63,7 @@ for lab in SEL:
 ax.add_patch(FancyBboxPatch((0.0, 0.0), 1.0, 0.20, boxstyle='round,pad=0.012',
                             fc='#fdecea', ec=RED, lw=1.2))
 ax.text(0.5, 0.10, 'OFF 는 IL_R10_r 이 100 % 결정.\n'
-        '경로힘 조건에서는 LTpL_L5 로 **순위가 뒤바뀐다**.\n'
+        '경로힘 조건에서는 LTpL_L5 로 순위가 뒤바뀐다.\n'
         '→ ES peak 는 재분배 상황에서 정보를 잃는다.',
         ha='center', va='center', fontsize=8.0, linespacing=1.6)
 
