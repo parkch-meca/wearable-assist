@@ -76,8 +76,18 @@ def posterior_envelope(m, s, bodies):
     return out
 
 
-def path_points(m, s, top, side='R'):
-    """상부 앵커 top 부터 허벅지까지의 (body, 국소좌표) 목록."""
+# 하단 고정 후보 — 현 하드웨어는 'femur'(안전하네스). 나머지는 설계 제안.
+BOTTOMS = {
+    'femur': [('femur', (-0.060 - F.SUBCUT, -0.150, 0.0))],
+    'sacrum': [('sacrum', (-0.150 - F.SUBCUT, -0.020, 0.0))],
+    'pelvis': [('pelvis', (-0.135 - F.SUBCUT, 0.020, 0.0))],          # 장골능 후면
+    'sacrum_femur': [('sacrum', (-0.150 - F.SUBCUT, -0.020, 0.0)),    # 천골 경유 후 허벅지
+                     ('femur', (-0.060 - F.SUBCUT, -0.150, 0.0))],
+}
+
+
+def path_points(m, s, top, side='R', bottom='femur'):
+    """상부 앵커 top 부터 하단 고정 bottom 까지의 (body, 국소좌표) 목록."""
     b_top = TOPS[top][0]
     idx = CHAIN.index(b_top)
     chain = CHAIN[idx:]
@@ -88,8 +98,12 @@ def path_points(m, s, top, side='R'):
         x, y = env[b]
         g = np.array([x - OFFSET, y, sg * Z_LAT])
         pts.append((b, F.ground_to_local(m, s, b, g)))
-    fem = 'femur_r' if side == 'R' else 'femur_l'
-    pts.append((fem, (-0.060 - F.SUBCUT, -0.150, 0.0)))
+    for b, loc in BOTTOMS[bottom]:
+        bb = (f'{b}_r' if side == 'R' else f'{b}_l') if b == 'femur' else b
+        v = list(loc)
+        if b in ('sacrum', 'pelvis'):
+            v[2] = sg * Z_LAT          # 정중 body 는 좌우로 벌린다
+        pts.append((bb, tuple(v)))
     return pts
 
 
@@ -123,12 +137,12 @@ def grf_objects(grf_src):
                         txt, re.S)]
 
 
-def build_pathforce(top, mot, out_tag, grf_src, k_ser=K_SER, scale=1.0):
-    """경로힘 조건 생성. 상부 앵커 top."""
+def build_pathforce(top, mot, out_tag, grf_src, k_ser=K_SER, scale=1.0, bottom='femur'):
+    """경로힘 조건 생성. 상부 앵커 top, 하단 고정 bottom."""
     m0 = osim.Model(F.MODEL)
     m0.initSystem()
     s0 = neutral(m0)
-    P = {sd: path_points(m0, s0, top, sd) for sd in ('R', 'L')}
+    P = {sd: path_points(m0, s0, top, sd, bottom) for sd in ('R', 'L')}
     m = osim.Model(F.MODEL)
     m.initSystem()
     cs, bs = m.getCoordinateSet(), m.getBodySet()
