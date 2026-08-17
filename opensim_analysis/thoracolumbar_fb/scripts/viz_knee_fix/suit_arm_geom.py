@@ -136,12 +136,22 @@ def build(m0, s0, design):
     # 캡이 없으면 끈이 흉곽에서 상완으로 질러가 관절 가까이를 지난다(게이트 미달).
     cap_up = g('scapula_R', [Cs[0] + M['R_gh'], Cs[1] + 0.020, Cs[2]])
     cap_dn = g('humerus_R', [Cs[0] + M['R_gh'], Cs[1] - 0.045, Cs[2]])
+    # 재설계 — 캡 하단을 상완이 아니라 **견갑/쇄골** 좌표계에 고정한다.
+    # 실물 대응: 가방끈형 어깨 밴드가 캡을 어깨 위에 유지하고, 상완에는 별도
+    # 스트랩으로 힘을 전달한다. 캡이 상완과 함께 돌지 않으므로 경로가 관절
+    # 안쪽으로 넘어가지 않는다 (구 캡 안의 50° 부호 반전 원인).
+    cap2_dn = g('scapula_R', [Cs[0] + M['R_gh'], Cs[1] - 0.045, Cs[2]])
+    cap2_cl = g('clavicle_R', [Cs[0] + M['R_gh'], Cs[1] + 0.010, Cs[2]])
 
     W_SH = ('humerus_R', to_local(m0, s0, 'humerus_R', Cs), M['R_gh'])
+    # 재설계안의 랩(=캡 면)도 견갑에 둔다. 캡 경유점만 견갑으로 옮기고 랩을
+    # 상완에 남겨 두면 내부 모순이다 — 캡은 어깨 위에 머무는 하나의 강체다.
+    W_SH2 = ('scapula_R', to_local(m0, s0, 'scapula_R', Cs), M['R_gh'])
     W_EL = ('humerus_R', to_local(m0, s0, 'humerus_R', Ce), M['R_el'])
     D = {
         'shoulder_strap':    ([p_chest, p_clav, p_humd], None),
         'shoulder_cap':      ([p_chest, p_clav, cap_up, cap_dn, p_humd], W_SH),
+        'shoulder_cap2':     ([p_chest, cap2_cl, cap_up, cap2_dn, p_humd], W_SH2),
         'shoulder_conform':  ([p_chest, p_clav, p_humd], W_SH),
         'shoulder_bow':      ([p_chest, p_clav, p_humd], None),
         'elbow_conform':     ([p_humpx, p_rad], W_EL),
@@ -247,7 +257,8 @@ def main():
         print(f'  {n:12s} {bl[0]:12s} → {bl[-1]:12s}  {bi}')
 
     res = {d: sweep(d) for d in
-           ('shoulder_strap', 'shoulder_cap', 'elbow_bow', 'elbow_ext_bow')}
+           ('shoulder_strap', 'shoulder_cap', 'shoulder_cap2',
+            'elbow_bow', 'elbow_ext_bow')}
 
     print('\n' + '=' * 100)
     print('[1-b] 게이트 — 유효 구간(장력>5 N 이고 r>0)에서 슈트 r vs 주동근 최대 근속')
