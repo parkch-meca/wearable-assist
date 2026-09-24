@@ -114,15 +114,33 @@ def main():
     print('\n' + '=' * 100)
     print('[2] 곡선 형상 판정')
     print('=' * 100)
+    TOL = 1.5      # 선형으로 볼 편차 한계 (%p). SO 수렴 잡음보다 크게 잡는다.
     for k, name, _ in METRICS:
         f8 = lin[f'{k}@8.0']['frac24']
         f16 = lin[f'{k}@16.5']['frac24']
-        shape = ('오목 (저용량이 더 효율적 — 비례 배분은 과소평가)'
-                 if (f8 > 8 / 24 * 100 and f16 > 16.5 / 24 * 100) else
-                 '볼록 (고용량이 더 효율적)'
-                 if (f8 < 8 / 24 * 100 and f16 < 16.5 / 24 * 100) else '혼재')
+        d8, d16 = lin[f'{k}@8.0']['dev'], lin[f'{k}@16.5']['dev']
+        big = max(abs(d8), abs(d16))
+        e24 = R['토크커플 24 N·m']['rel'][k]
+        # 효과가 음수(감소)이므로 '이득' = |효과|. 이득이 직선보다 크면(=sgn*dev>0) 오목.
+        sgn = np.sign(e24)
+        if big <= TOL:
+            shape = f'선형 (최대 편차 {big:.1f} %p ≤ {TOL} %p) — 비례 배분이 정확하다'
+        elif sgn * d8 > 0 and sgn * d16 > 0:
+            shape = f'오목 (저용량이 더 효율적) — 비례 배분은 과소평가, 최대 {big:.1f} %p'
+        elif sgn * d8 < 0 and sgn * d16 < 0:
+            shape = f'볼록 (고용량이 더 효율적) — 비례 배분은 과대평가, 최대 {big:.1f} %p'
+        else:
+            shape = f'혼재 (최대 편차 {big:.1f} %p)'
+        lin[f'{k}@shape'] = shape
         print(f'  {name:16s} 8 N·m 이 {f8:5.1f} % · 16.5 N·m 이 {f16:5.1f} % '
               f'(토크 비 33 / 69 %) → {shape}')
+
+    dom = {lab: v['dominant'][0] for lab, v in R.items()}
+    switched = len({dom[l] for l in ('미착용 (0 N·m)', '토크커플 8 N·m',
+                                     '토크커플 16.5 N·m', '토크커플 24 N·m')}) > 1
+    print(f"\n  ★ ES peak 만 곡선이 휘는 이유 — 결정 근육이 조건마다 바뀌는가: "
+          f"{'예 (' + ' → '.join(dom[l] for l in ('미착용 (0 N·m)', '토크커플 8 N·m', '토크커플 16.5 N·m', '토크커플 24 N·m')) + ')' if switched else '아니오'}")
+    print('     결정 근육이 바뀌면 max 연산이 다른 근육을 집어 총 부하와 어긋난다 (L-07).')
 
     pk = R.get('경로힘 16.5 N·m (현 하드웨어 기하)')
     if pk:

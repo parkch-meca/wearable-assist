@@ -25,7 +25,8 @@ plt.rcParams.update({'font.size': 9, 'figure.facecolor': 'white',
 
 IMG = '/data/wearable-assist/opensim_analysis/thoracolumbar_fb/docs/images/suit_multijoint'
 D = json.load(open('/data/suit_dose/dose.json'))
-B = json.load(open('/data/suit_box/metrics.json'))
+# BOX_METRICS 는 레이아웃 시험용 오버라이드 (본 실행에서는 지정하지 않는다)
+B = json.load(open(os.environ.get('BOX_METRICS', '/data/suit_box/metrics.json')))
 C = json.load(open('/data/suit_carry/metrics.json'))
 GREEN, RED, ORANGE, BLUE, PURPLE, GREY = ('#1a7f37', '#c44e52', '#b3541e', '#4c72b0',
                                           '#7d5ba6', '0.55')
@@ -59,7 +60,7 @@ fig.suptitle('재개 작업 검증 — 용량–반응 곡선(스툽) · 들기 
              fontsize=15.2, fontweight='bold', y=0.963)
 fig.text(0.5, 0.932,
          '모델 ThoracolumbarFB v2.0 · 척추 reserve opt 5 · 다부위는 팔꿈치근 14개 + 팔 액추에이터 opt 5 '
-         '(OFF 부터 재산출) · ⚠️ 5동작 논문 수치 불변 · 2026-09-24',
+         '(OFF 부터 재산출) · ※ 5동작 논문 수치 불변 · 2026-09-24',
          ha='center', fontsize=9.0, color='0.3')
 
 # ── (1) 용량–반응 곡선 (a) ES peak ────────────────────────────────
@@ -92,7 +93,7 @@ ax.legend(fontsize=7.6, loc='lower left')
 
 # ── (2) 3지표 정규화 — 오목성 ────────────────────────────────────
 ax = fig.add_subplot(gs[0, 1])
-panel(ax, '(2) 3지표 모두 오목 — 비례 배분은 과소평가')
+panel(ax, '(2) ★ 총 부하 지표는 선형 — 휘는 것은 ES peak 뿐')
 ax.plot([0, 100], [0, 100], '--', color=GREY, lw=1.6, label='비례 (선형 가정)')
 for (k, name), c in zip(MET, (BLUE, GREEN, PURPLE)):
     xs, ys = [], []
@@ -110,8 +111,15 @@ ax.grid(alpha=.3)
 ax.legend(fontsize=7.6, loc='upper left')
 f16 = D['linearity']['peak@16.5']['frac24']
 f8 = D['linearity']['peak@8.0']['frac24']
-ax.text(0.97, 0.06, f'8 N·m(33 %) → {f8:.0f} %\n16.5 N·m(69 %) → {f16:.0f} %',
-        transform=ax.transAxes, ha='right', fontsize=8.4, color=RED,
+shape = {k: D['linearity'][f'{k}@shape'].split(' —')[0] for k, _ in MET}
+ax.text(0.97, 0.05,
+        f"(a) ES peak  {shape['peak']}\n"
+        f"    8 N·m → {f8:.0f} % · 16.5 → {f16:.0f} %\n"
+        f"(b) 활성도 합  {shape['act_sum']}\n(c) 근력 합  {shape['force_sum']}",
+        transform=ax.transAxes, ha='right', fontsize=8.0, color='0.15',
+        linespacing=1.6)
+ax.text(0.03, 0.62, 'peak 결정 근육이 24 N·m 에서 바뀐다\n(IL_R10_r → LTpL_L5_r)',
+        transform=ax.transAxes, va='top', fontsize=8.0, color=RED,
         fontweight='bold', linespacing=1.5)
 
 # ── (3) 들기 5조건 ES 3지표 ──────────────────────────────────────
@@ -212,8 +220,10 @@ lines = [
     (f"  8 N·m → {D['points']['토크커플 8 N·m']['rel']['peak']:+.1f} %  ·  "
      f"16.5 → {D['points']['토크커플 16.5 N·m']['rel']['peak']:+.1f} %  ·  "
      f"24 → {D['points']['토크커플 24 N·m']['rel']['peak']:+.1f} %", '0.15', 9.0, None),
-    (f"  곡선 오목 — 토크 33 % 에서 효과 {f8:.0f} %, 69 % 에서 {f16:.0f} %", RED, 9.0, 'bold'),
-    ('  → L-01 은 "두 점 병기"가 아니라 곡선 위 두 지점으로 서술', '0.15', 9.0, None),
+    (f"  ES peak 만 오목 (33 % 토크 → {f8:.0f} %, 69 % → {f16:.0f} %)", RED, 9.0, 'bold'),
+    ('  활성도 합·근력 합은 선형 (편차 ≤ 0.1 %p) — 부하 자체는 비례한다', GREEN, 9.0, 'bold'),
+    ('  → L-01 은 곡선 위 두 지점으로 서술. 비례 배분 과소평가는', '0.15', 9.0, None),
+    ('     주 지표(ES peak)에 한정된 현상이다', '0.15', 9.0, None),
     ('', 'k', 4, None),
     ('■ 들기 20 kg 다부위 (신규)', 'k', 10.2, 'bold'),
     (f"  허리만 ES 활성도 합 {esB:+.1f} %  ·  팔꿈치(연장안) 굴근 {ebB:+.1f} %", '0.15', 9.0, None),
@@ -238,6 +248,6 @@ for txt, col, sz, wgt in lines:
                 fontweight=wgt or 'normal', va='top')
     y -= (sz + 5.2) / 210.0
 
-out = os.path.join(IMG, 'resume_2026-09-24_grid.png')
+out = os.environ.get('GRID_OUT', os.path.join(IMG, 'resume_2026-09-24_grid.png'))
 fig.savefig(out, dpi=112)
 print('SAVED', out)
