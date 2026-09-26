@@ -38,7 +38,8 @@ os.makedirs(OUT, exist_ok=True)
 D2R = np.pi / 180
 SUBCUT, GARMENT = 0.010, 0.005
 OFFSET = SUBCUT + GARMENT
-Z_LAT = F.Z_LAT                      # 척추 좌우로 벌린 거리 (기존 허리 경로와 동일)
+Z_LAT = 0.055                        # m — 구동기 중심의 좌우 간격 (사용자 지정 기본값)
+#   40 / 70 mm 는 민감도 항목 (근육옷감 폭 110 mm)
 
 # 조끼 등판이 덮는 척추 레벨 — 어깨끈(견봉)부터 요추까지 전부
 BACK_CHAIN = ['thoracic2', 'thoracic4', 'thoracic6', 'thoracic8', 'thoracic10',
