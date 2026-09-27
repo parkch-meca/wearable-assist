@@ -109,16 +109,30 @@ def solve_arm(m, phi_lum, pt, hf):
     """손이 견봉 바로 아래 오도록 어깨 굴곡각을 맞춘다 (팔이 수직으로 늘어진 상태)."""
     lo, hi = -120.0, 120.0
 
-    def dx(a):
+    def dxy(a):
         s = set_pose(m, phi_lum, pt, hf, arm=a)
         ac = station(m, s, AC_BODY, AC_LOC)
         hd = 0.5 * (station(m, s, 'hand_R', (0, 0, 0)) +
                     station(m, s, 'hand_L', (0, 0, 0)))
-        return hd[0] - ac[0]
+        return hd[0] - ac[0], hd[1] - ac[1]
+
+    def dx(a):
+        return dxy(a)[0]
     # dx(a) 는 단조가 아니다 (코사인 형태) → 격자 탐색 후 국소 이분법
-    grid = np.linspace(lo, hi, 49)
-    vals = np.array([dx(a) for a in grid])
-    i = int(np.argmin(np.abs(vals)))
+    # ⚠️ 손은 **견봉보다 아래**에 있어야 한다 (중력으로 늘어진 팔).
+    #    dx=0 해는 위·아래 두 개가 나오므로 아래쪽 가지만 남긴다.
+    grid = np.linspace(lo, hi, 97)
+    vals, down = [], []
+    for a in grid:
+        u, v = dxy(a)
+        vals.append(u)
+        down.append(v < 0)
+    vals = np.array(vals)
+    mask = np.array(down)
+    if not mask.any():
+        mask = np.ones_like(vals, dtype=bool)
+    cand = np.where(mask)[0]
+    i = int(cand[np.argmin(np.abs(vals[cand]))])
     a0, a1 = grid[max(0, i - 1)], grid[min(len(grid) - 1, i + 1)]
     if dx(a0) * dx(a1) <= 0:
         for _ in range(50):
@@ -131,9 +145,9 @@ def solve_arm(m, phi_lum, pt, hf):
     return float(grid[i])
 
 
-def solve_posture(m, phi_lum):
-    """(pelvis_tilt, hip_flex) 뉴턴 2×2 — 수치 야코비안."""
-    x = np.array([-70.0, 40.0])
+def solve_posture(m, phi_lum, x0=None):
+    """(pelvis_tilt, hip_flex) 뉴턴 2×2 — 수치 야코비안. x0 로 워밍 스타트."""
+    x = np.array([-70.0, 40.0]) if x0 is None else np.array(x0, float)
 
     def resid(v):
         s = set_pose(m, phi_lum, v[0], v[1])
